@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class BookRegisterService implements BookRegisterUseCase {
+public class BookService implements BookRegisterUseCase {
 
     private final BookPersistencePort bookPersistencePort;
     private final BookISBNCheckPort bookISBNCheckPort;
