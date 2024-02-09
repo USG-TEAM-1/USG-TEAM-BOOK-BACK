@@ -13,11 +13,11 @@ public class Book {
     private String bookName; // 책 이름
     private String bookComment; // 책 코멘트
     private String bookPostName; // 책 등록 시 게시글 이름
-    private Long bookPrice; // 책 가격
+    private Integer bookPrice; // 책 가격
     private String isbn; // ISBN
 
     @Builder
-    public Book(Long memberId, String bookName, String bookComment, String bookPostName, Long bookPrice, String isbn) {
+    public Book(Long memberId, String bookName, String bookComment, String bookPostName, Integer bookPrice, String isbn) {
         this.memberId = memberId;
         this.bookName = bookName;
         this.bookComment = bookComment;

@@ -19,13 +19,13 @@ public class BookEntity {
     private String bookName;
     private String bookCommend;
     private String bookPostName;
-    private Long bookPrice;
+    private Integer bookPrice;
     private String isbn;
 
     // 이미지 추가 예정
 
     @Builder
-    public BookEntity(Long memberId, String bookName, String bookCommend, String bookPostName, Long bookPrice, String isbn) {
+    public BookEntity(Long memberId, String bookName, String bookCommend, String bookPostName, Integer bookPrice, String isbn) {
         this.memberId = memberId;
         this.bookName = bookName;
         this.bookCommend = bookCommend;
