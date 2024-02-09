@@ -19,7 +19,7 @@ public class BookPersistenceAdapter implements BookPersistencePort {
                 .builder()
                 .memberId(book.getMemberId())
                 .bookName(book.getBookName())
-                .bookCommend(book.getBookComment())
+                .bookComment(book.getBookComment())
                 .bookPostName(book.getBookPostName())
                 .bookPrice(book.getBookPrice())
                 .isbn(book.getIsbn())

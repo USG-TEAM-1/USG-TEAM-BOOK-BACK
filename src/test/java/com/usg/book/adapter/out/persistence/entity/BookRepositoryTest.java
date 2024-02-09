@@ -19,11 +19,11 @@ public class BookRepositoryTest {
         // given
         Long memberId = 1L;
         String bookName = "bookName";
-        String bookCommend = "bookCommend";
+        String bookComment = "bookComment";
         String bookPostName = "bookPostName";
         Integer bookPrice = 10;
         String isbn = "isbn";
-        BookEntity bookEntity = createBookEntity(memberId, bookName, bookCommend, bookPostName, bookPrice, isbn);
+        BookEntity bookEntity = createBookEntity(memberId, bookName, bookComment, bookPostName, bookPrice, isbn);
 
         // when
         BookEntity savedBook = bookRepository.save(bookEntity);
@@ -34,7 +34,7 @@ public class BookRepositoryTest {
 
     private BookEntity createBookEntity(Long memberId,
                                         String bookName,
-                                        String bookCommend,
+                                        String bookComment,
                                         String bookPostName,
                                         Integer bookPrice,
                                         String isbn) {
@@ -42,7 +42,7 @@ public class BookRepositoryTest {
                 .builder()
                 .memberId(memberId)
                 .bookName(bookName)
-                .bookCommend(bookCommend)
+                .bookComment(bookComment)
                 .bookPostName(bookPostName)
                 .bookPrice(bookPrice)
                 .isbn(isbn)
