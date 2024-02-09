@@ -1,5 +1,6 @@
 package com.usg.book.adapter.out.persistence.entity;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -13,6 +14,7 @@ public class BookRepositoryTest {
     private BookRepository bookRepository;
 
     @Test
+    @DisplayName("책 리포지토리 책 등록 테스트")
     void saveTest() {
         // given
         Long memberId = 1L;
