@@ -5,6 +5,7 @@ import com.usg.book.application.port.out.BookImageGcsPort;
 import com.usg.book.application.port.out.BookImagePersistencePort;
 import com.usg.book.application.port.out.BookPersistencePort;
 import com.usg.book.domain.Image;
+import org.assertj.core.api.AbstractThrowableAssert;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +19,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -59,5 +61,25 @@ public class BookImageServiceTest {
         Field field = object.getClass().getDeclaredField(fieldName);
         field.setAccessible(true);
         field.set(object, value);
+    }
+
+    @Test
+    @DisplayName("이미지 개수 초과로 인한 실패 테스트")
+    void saveImagesCapacityFailTest() {
+        // given
+        Long bookId = 1L;
+        List<MultipartFile> images = new ArrayList<>();
+        for (int i = 0; i < 11; i++) {
+            MockMultipartFile image = new MockMultipartFile("images", "image1.jpg", "image/jpeg", new byte[10]);
+            images.add(image);
+        }
+
+        // when
+        AbstractThrowableAssert<?, ? extends Throwable> abstractThrowableAssert
+                = assertThatThrownBy(() -> bookImageService.saveImages(images, bookId));
+
+        // then
+        abstractThrowableAssert
+                .isInstanceOf(IllegalArgumentException.class);
     }
 }
