@@ -29,4 +29,11 @@ public class BookPersistenceAdapter implements BookPersistencePort {
 
         return savedBookEntity.getId();
     }
+
+    @Override
+    public BookEntity findById(Long bookId) {
+        return bookRepository.findById(bookId).orElseThrow(
+                () -> new IllegalArgumentException("Book Not Exist")
+        );
+    }
 }
