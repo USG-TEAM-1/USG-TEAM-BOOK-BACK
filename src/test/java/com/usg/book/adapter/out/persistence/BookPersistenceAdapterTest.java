@@ -10,6 +10,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -61,6 +63,29 @@ public class BookPersistenceAdapterTest {
                 .bookPrice(bookPrice)
                 .isbn(isbn)
                 .build();
+    }
+
+    @Test
+    @DisplayName("PK 로 책 엔티티 조회 테스트")
+    void findByIdTest() {
+        // given
+        Long bookId = 1L;
+        String email = "email";
+        String bookName = "bookName";
+        String bookPostName = "bookPostName";
+        String bookComment = "bookComment";
+        Integer bookPrice = 10;
+        String isbn = "isbn";
+        BookEntity bookEntity = createBookEntity(email, bookName, bookPostName, bookComment, bookPrice, isbn);
+
+        // stub
+        when(bookRepository.findById(bookId)).thenReturn(Optional.of(bookEntity));
+
+        // when
+        BookEntity findBookEntity = bookPersistenceAdapter.findById(bookId);
+
+        // then
+        assertThat(findBookEntity).isEqualTo(bookEntity);
     }
 
     private BookEntity createBookEntity(String email,
