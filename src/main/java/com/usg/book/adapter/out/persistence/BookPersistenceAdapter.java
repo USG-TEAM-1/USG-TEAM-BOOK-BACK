@@ -17,7 +17,7 @@ public class BookPersistenceAdapter implements BookPersistencePort {
     public Long registerBook(Book book) {
         BookEntity bookEntity = BookEntity
                 .builder()
-                .memberId(book.getMemberId())
+                .email(book.getEmail())
                 .bookName(book.getBookName())
                 .bookComment(book.getBookComment())
                 .bookPostName(book.getBookPostName())
@@ -28,5 +28,12 @@ public class BookPersistenceAdapter implements BookPersistencePort {
         BookEntity savedBookEntity = bookRepository.save(bookEntity);
 
         return savedBookEntity.getId();
+    }
+
+    @Override
+    public BookEntity findById(Long bookId) {
+        return bookRepository.findById(bookId).orElseThrow(
+                () -> new IllegalArgumentException("Book Not Exist")
+        );
     }
 }

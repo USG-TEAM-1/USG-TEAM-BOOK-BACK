@@ -30,13 +30,13 @@ public class BookServiceTest {
     @DisplayName("책 등록 서비스 테스트")
     void registerBookTest() {
         // given
-        Long memberId = 1L;
+        String email = "email";
         String bookName = "bookName";
         String bookComment = "bookComment";
         String bookPostName = "bookPostName";
         Integer bookPrice = 10;
         String isbn = "isbn";
-        BookRegisterCommend bookRegisterCommend = createBookRegisterCommend(memberId, bookName, bookComment, bookPostName, bookPrice, isbn);
+        BookRegisterCommend bookRegisterCommend = createBookRegisterCommend(email, bookName, bookComment, bookPostName, bookPrice, isbn);
 
         // stub
         doNothing().when(bookISBNCheckPort).bookIsbnCheck(isbn);
@@ -49,7 +49,7 @@ public class BookServiceTest {
         Assertions.assertThat(savedBookId).isEqualTo(1L);
     }
 
-    private BookRegisterCommend createBookRegisterCommend(Long memberId,
+    private BookRegisterCommend createBookRegisterCommend(String email,
                                         String bookName,
                                         String bookComment,
                                         String bookPostName,
@@ -57,7 +57,7 @@ public class BookServiceTest {
                                         String isbn) {
         return BookRegisterCommend
                 .builder()
-                .memberId(memberId)
+                .email(email)
                 .bookName(bookName)
                 .bookComment(bookComment)
                 .bookPostName(bookPostName)
