@@ -3,6 +3,15 @@ spring:
 #    active: ${ENVIRONMENT}
     active: local
 
+  cloud:
+    gcp:
+      storage:
+        credentials:
+          location: classpath:${GCS_KEY}.json
+        project-id: ${GCS_ID}
+        bucket: ${BUCKET_NAME}
+
 jwt:
   secret:
     key: ${SECRET_KEY}
+
