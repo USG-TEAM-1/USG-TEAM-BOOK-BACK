@@ -7,12 +7,14 @@ import com.usg.book.adapter.in.web.token.MemberEmailGetter;
 import com.usg.book.application.port.in.BookImageUploadUseCase;
 import com.usg.book.application.port.in.BookRegisterCommend;
 import com.usg.book.application.port.in.BookRegisterUseCase;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -24,15 +26,18 @@ public class BookApiController {
     private final BookImageUploadUseCase bookImageUploadUseCase;
     private final MemberEmailGetter memberEmailGetter;
 
-    @PostMapping("/api/book")
-    public ResponseEntity<Result> registerBook(@RequestBody BookRegisterRequest request,
+    @Operation(summary = "책 등록 *")
+    @PostMapping(value = "/api/book", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<Result> registerBook(@ModelAttribute("BookRegisterRequest") BookRegisterRequest request,
                                                HttpServletRequest servletRequest) {
 
-        String email = memberEmailGetter.getMemberEmail(servletRequest.getHeader("Authorization"));
-        BookRegisterCommend bookRegisterCommend = requestToCommend(request, email);
+        // JWT 에서 이메일 가져오기
+//        String email = memberEmailGetter.getMemberEmail(servletRequest.getHeader("Authorization"));
+        BookRegisterCommend bookRegisterCommend = requestToCommend(request, "email");
         Long savedBookId = bookRegisterUseCase.registerBook(bookRegisterCommend);
 
-        // todo 책 저장과 이미지 저장 트랜잭션 분리
+        // 책 저장과 이미지 저장 트랜잭션 분리
+        bookImageUploadUseCase.saveImages(request.getImages(), savedBookId);
 
         return ResponseEntity.ok(new Result(BookRegisterResponse
                 .builder()
