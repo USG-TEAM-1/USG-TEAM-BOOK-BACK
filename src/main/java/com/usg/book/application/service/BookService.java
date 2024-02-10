@@ -36,7 +36,7 @@ public class BookService implements BookRegisterUseCase {
     private Book commendToBook(BookRegisterCommend commend) {
         return Book
                 .builder()
-                .memberId(commend.getMemberId())
+                .email(commend.getEmail())
                 .bookName(commend.getBookName())
                 .bookComment(commend.getBookComment())
                 .bookPostName(commend.getBookPostName())

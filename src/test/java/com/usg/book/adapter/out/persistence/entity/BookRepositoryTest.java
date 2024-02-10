@@ -17,13 +17,13 @@ public class BookRepositoryTest {
     @DisplayName("책 리포지토리 책 등록 테스트")
     void saveTest() {
         // given
-        Long memberId = 1L;
+        String email = "email";
         String bookName = "bookName";
         String bookComment = "bookComment";
         String bookPostName = "bookPostName";
         Integer bookPrice = 10;
         String isbn = "isbn";
-        BookEntity bookEntity = createBookEntity(memberId, bookName, bookComment, bookPostName, bookPrice, isbn);
+        BookEntity bookEntity = createBookEntity(email, bookName, bookComment, bookPostName, bookPrice, isbn);
 
         // when
         BookEntity savedBook = bookRepository.save(bookEntity);
@@ -32,7 +32,7 @@ public class BookRepositoryTest {
         assertThat(savedBook).isEqualTo(bookEntity);
     }
 
-    private BookEntity createBookEntity(Long memberId,
+    private BookEntity createBookEntity(String email,
                                         String bookName,
                                         String bookComment,
                                         String bookPostName,
@@ -40,7 +40,7 @@ public class BookRepositoryTest {
                                         String isbn) {
         return BookEntity
                 .builder()
-                .memberId(memberId)
+                .email(email)
                 .bookName(bookName)
                 .bookComment(bookComment)
                 .bookPostName(bookPostName)

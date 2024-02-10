@@ -26,14 +26,14 @@ public class BookPersistenceAdapterTest {
     @DisplayName("책 영속성 어뎁터 책 등록 테스트")
     void registerBookTest() {
         // given
-        Long memberId = 1L;
+        String email = "email";
         String bookName = "bookName";
         String bookPostName = "bookPostName";
         String bookComment = "bookComment";
         Integer bookPrice = 10;
         String isbn = "isbn";
-        Book book = createBook(memberId, bookName, bookPostName, bookComment, bookPrice, isbn);
-        BookEntity bookEntity = createBookEntity(memberId, bookName, bookPostName, bookComment, bookPrice, isbn);
+        Book book = createBook(email, bookName, bookPostName, bookComment, bookPrice, isbn);
+        BookEntity bookEntity = createBookEntity(email, bookName, bookPostName, bookComment, bookPrice, isbn);
 
         // stub
         when(bookRepository.save(any(BookEntity.class))).thenReturn(bookEntity);
@@ -46,7 +46,7 @@ public class BookPersistenceAdapterTest {
 
     }
 
-    private Book createBook(Long memberId,
+    private Book createBook(String email,
                             String bookName,
                             String bookComment,
                             String bookPostName,
@@ -54,7 +54,7 @@ public class BookPersistenceAdapterTest {
                             String isbn) {
         return Book
                 .builder()
-                .memberId(memberId)
+                .email(email)
                 .bookName(bookName)
                 .bookComment(bookComment)
                 .bookPostName(bookPostName)
@@ -63,7 +63,7 @@ public class BookPersistenceAdapterTest {
                 .build();
     }
 
-    private BookEntity createBookEntity(Long memberId,
+    private BookEntity createBookEntity(String email,
                                         String bookName,
                                         String bookComment,
                                         String bookPostName,
@@ -71,7 +71,7 @@ public class BookPersistenceAdapterTest {
                                         String isbn) {
         return BookEntity
                 .builder()
-                .memberId(memberId)
+                .email(email)
                 .bookName(bookName)
                 .bookComment(bookComment)
                 .bookPostName(bookPostName)

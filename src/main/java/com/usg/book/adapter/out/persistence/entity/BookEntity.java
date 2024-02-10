@@ -15,7 +15,7 @@ public class BookEntity {
     @Id @GeneratedValue
     @Column(name = "book_id")
     private Long id;
-    private Long memberId;
+    private String email;
     private String bookName;
     private String bookComment;
     private String bookPostName;
@@ -25,8 +25,8 @@ public class BookEntity {
     // 이미지 추가 예정
 
     @Builder
-    public BookEntity(Long memberId, String bookName, String bookComment, String bookPostName, Integer bookPrice, String isbn) {
-        this.memberId = memberId;
+    public BookEntity(String email, String bookName, String bookComment, String bookPostName, Integer bookPrice, String isbn) {
+        this.email = email;
         this.bookName = bookName;
         this.bookComment = bookComment;
         this.bookPostName = bookPostName;

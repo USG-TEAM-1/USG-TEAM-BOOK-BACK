@@ -17,7 +17,7 @@ public class BookPersistenceAdapter implements BookPersistencePort {
     public Long registerBook(Book book) {
         BookEntity bookEntity = BookEntity
                 .builder()
-                .memberId(book.getMemberId())
+                .email(book.getEmail())
                 .bookName(book.getBookName())
                 .bookComment(book.getBookComment())
                 .bookPostName(book.getBookPostName())
