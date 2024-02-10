@@ -3,6 +3,7 @@ package com.usg.book.adapter.out.persistence;
 import com.usg.book.adapter.out.persistence.entity.BookEntity;
 import com.usg.book.adapter.out.persistence.entity.BookRepository;
 import com.usg.book.domain.Book;
+import org.assertj.core.api.AbstractThrowableAssert;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -86,6 +87,24 @@ public class BookPersistenceAdapterTest {
 
         // then
         assertThat(findBookEntity).isEqualTo(bookEntity);
+    }
+
+    @Test
+    @DisplayName("PK 로 책 엔티티 조회 실패 테스트")
+    void findByIdFailTest() {
+        // given
+        Long bookId = 1L;
+
+        // stub
+        when(bookRepository.findById(bookId)).thenReturn(Optional.empty());
+
+        // when
+        AbstractThrowableAssert<?, ? extends Throwable> abstractThrowableAssert
+                = assertThatThrownBy(() -> bookPersistenceAdapter.findById(bookId));
+
+        // then
+        abstractThrowableAssert
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     private BookEntity createBookEntity(String email,
