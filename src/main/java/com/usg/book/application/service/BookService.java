@@ -38,8 +38,11 @@ public class BookService implements BookRegisterUseCase {
                 .builder()
                 .email(commend.getEmail())
                 .bookName(commend.getBookName())
-                .bookComment(commend.getBookComment())
+                .bookRealPrice(commend.getBookRealPrice())
+                .author(commend.getAuthor())
+                .publisher(commend.getPublisher())
                 .bookPostName(commend.getBookPostName())
+                .bookComment(commend.getBookComment())
                 .bookPrice(commend.getBookPrice())
                 .isbn(commend.getIsbn())
                 .build();

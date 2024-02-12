@@ -27,8 +27,11 @@ public class BookApiControllerTest {
     void registerBookTest() throws Exception {
         // given
         String bookName = "bookName";
-        String bookComment = "bookComment";
+        Integer bookRealPrice = 100;
+        String author = "author";
+        String publisher = "publisher";
         String bookPostName = "bookPostName";
+        String bookComment = "bookComment";
         Integer bookPrice = 10;
         String isbn = "isbn";
         String jwt = "Bearer " + MockJWTGenerator.generateToken("email");
@@ -37,6 +40,9 @@ public class BookApiControllerTest {
         ResultActions perform = mockMvc.perform(multipart("/api/book")
                 .file("images[0]", new byte[10])
                 .param("bookName", bookName)
+                .param("bookRealPrice", bookRealPrice.toString())
+                .param("author", author)
+                .param("publisher", publisher)
                 .param("bookComment", bookComment)
                 .param("bookPostName", bookPostName)
                 .param("bookPrice", bookPrice.toString())
