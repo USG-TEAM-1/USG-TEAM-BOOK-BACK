@@ -14,3 +14,7 @@ spring:
         default_batch_fetch_size: 100
 server:
   port: 9090
+
+jwt:
+  secret:
+    key: ${SECRET_KEY}
