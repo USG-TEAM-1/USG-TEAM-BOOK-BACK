@@ -51,8 +51,11 @@ public class BookApiController {
                 .builder()
                 .email(email)
                 .bookName(request.getBookName())
-                .bookComment(request.getBookComment())
+                .bookRealPrice(request.getBookRealPrice())
+                .author(request.getAuthor())
+                .publisher(request.getPublisher())
                 .bookPostName(request.getBookPostName())
+                .bookComment(request.getBookComment())
                 .bookPrice(request.getBookPrice())
                 .isbn(request.getIsbn())
                 .build();
