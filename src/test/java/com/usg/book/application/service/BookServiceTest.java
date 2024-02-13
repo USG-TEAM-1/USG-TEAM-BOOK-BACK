@@ -42,7 +42,7 @@ public class BookServiceTest {
         BookRegisterCommend bookRegisterCommend = createBookRegisterCommend(email, bookName, bookRealPrice, author, publisher, bookComment, bookPostName, bookPrice, isbn);
 
         // stub
-        doNothing().when(bookISBNCheckPort).bookIsbnCheck(isbn, bookPrice);
+        doNothing().when(bookISBNCheckPort).bookIsbnCheck(isbn, bookRealPrice);
         when(bookPersistencePort.registerBook(any(Book.class))).thenReturn(1L);
 
         // when
