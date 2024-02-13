@@ -1,36 +1,48 @@
 package com.usg.book.adapter.out.api;
 
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
 import com.usg.book.application.port.out.BookImageGcsPort;
 import com.usg.book.domain.Image;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.InputStream;
 
 @Slf4j
 @Component
 public class ImageGcsAdapter implements BookImageGcsPort {
 
+    private final String keyFilename;
     private final String bucketName;
     private final String projectId;
-    private final Storage storage;
 
-    public ImageGcsAdapter(@Value("${spring.cloud.gcp.storage.bucket}") String bucketName,
-                           @Value("${spring.cloud.gcp.storage.project-id}") String projectId,
-                           Storage storage) {
+    public ImageGcsAdapter(@Value("${spring.cloud.gcp.storage.credentials.location}") String keyFilename,
+                           @Value("${spring.cloud.gcp.storage.bucket}") String bucketName,
+                           @Value("${spring.cloud.gcp.storage.project-id}") String projectId) {
 
+        this.keyFilename = keyFilename;
         this.bucketName = bucketName;
         this.projectId = projectId;
-        this.storage = storage;
     }
 
     @Override
     public String uploadImage(Image image) {
 
         try {
+            InputStream keyFile = ResourceUtils.getURL(keyFilename).openStream();
+
+            Storage storage = StorageOptions.newBuilder()
+                    .setCredentials(GoogleCredentials.fromStream(keyFile))
+                    .build()
+                    .getService();
+
             MultipartFile multipartFile = image.getImage();
             String ext = multipartFile.getContentType();
             String storeFilename = image.getStoreFilename();
