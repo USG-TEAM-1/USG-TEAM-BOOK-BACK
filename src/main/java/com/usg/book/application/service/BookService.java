@@ -24,7 +24,7 @@ public class BookService implements BookRegisterUseCase {
     public Long registerBook(BookRegisterCommend commend) {
 
         // 중앙 도서 API 연동
-        bookISBNCheckPort.bookIsbnCheck(commend.getIsbn());
+        bookISBNCheckPort.bookIsbnCheck(commend.getIsbn(), commend.getBookRealPrice());
 
         // 책 데이터 저장
         Book book = commendToBook(commend);
