@@ -13,11 +13,13 @@ import java.net.URI;
 @Component
 public class BookISBNCheckAdapter implements BookISBNCheckPort {
 
+    private final RestTemplate restTemplate;
     private final String libraryKey;
     private final String libraryUrl = "https://www.nl.go.kr/seoji/SearchApi.do?";
 
-    public BookISBNCheckAdapter(@Value("${open.library.key}") String libraryKey) {
+    public BookISBNCheckAdapter(@Value("${open.library.key}") String libraryKey, RestTemplate restTemplate) {
         this.libraryKey = libraryKey;
+        this.restTemplate = restTemplate;
     }
 
     @Override
@@ -34,7 +36,6 @@ public class BookISBNCheckAdapter implements BookISBNCheckPort {
 
         String replacedIsbn = isbn.replace("-", "");
 
-        RestTemplate restTemplate = new RestTemplate();
         LibraryIsbnResponse libraryIsbnResponse = restTemplate.getForObject(uri, LibraryIsbnResponse.class);
         DocsDto docs = libraryIsbnResponse.getDocs().get(0);
 
