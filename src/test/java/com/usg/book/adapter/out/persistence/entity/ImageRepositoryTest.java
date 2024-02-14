@@ -1,5 +1,6 @@
 package com.usg.book.adapter.out.persistence.entity;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,5 +69,30 @@ public class ImageRepositoryTest {
                 .gcsUrl(gcsUrl)
                 .bookEntity(bookEntity)
                 .build();
+    }
+
+    @Test
+    @DisplayName("책 PK 로 이미지 조회 테스트")
+    void findByBookIdTest() {
+        // given
+        String email = "email";
+        String bookName = "bookName";
+        String bookComment = "bookComment";
+        String bookPostName = "bookPostName";
+        Integer bookPrice = 10;
+        String isbn = "isbn";
+        BookEntity bookEntity = createBookEntity(email, bookName, bookComment, bookPostName, bookPrice, isbn);
+        BookEntity savedBookEntity = bookRepository.save(bookEntity);
+        String uploadFilename = "uploadFilename";
+        String storeFilename = "storeFilename";
+        String gcsUrl = "gcsUrl";
+        ImageEntity imageEntity = createImageEntity(uploadFilename, storeFilename, gcsUrl, savedBookEntity);
+        ImageEntity savedImageEntity = imageRepository.save(imageEntity);
+
+        // when
+        ImageEntity findImageEntity = imageRepository.findByBookId(savedBookEntity.getId());
+
+        // then
+        Assertions.assertThat(findImageEntity).isEqualTo(savedImageEntity);
     }
 }
