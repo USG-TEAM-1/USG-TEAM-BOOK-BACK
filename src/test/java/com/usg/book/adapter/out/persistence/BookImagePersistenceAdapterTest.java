@@ -59,4 +59,22 @@ public class BookImagePersistenceAdapterTest {
         field.setAccessible(true);
         field.set(object, value);
     }
+
+    @Test
+    @DisplayName("책 PK 로 이미지 URL 조회 테스트")
+    void getImageUrlTest() {
+        // given
+        Long bookId = 1L;
+        String gcsUrl = "gcsUrl";
+        ImageEntity imageEntity = ImageEntity.builder().gcsUrl(gcsUrl).build();
+
+        // stub
+        when(imageRepository.findByBookId(bookId)).thenReturn(imageEntity);
+
+        // when
+        String imageUrl = bookImagePersistenceAdapter.getImageUrl(bookId);
+
+        // then
+        assertThat(imageUrl).isEqualTo(gcsUrl);
+    }
 }
