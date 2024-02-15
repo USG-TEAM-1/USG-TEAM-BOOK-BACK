@@ -5,11 +5,16 @@ import com.usg.book.adapter.in.web.dto.BookRegisterResponse;
 import com.usg.book.adapter.in.web.dto.GetBookResponse;
 import com.usg.book.adapter.in.web.dto.Result;
 import com.usg.book.adapter.in.web.token.MemberEmailGetter;
+import com.usg.book.adapter.out.persistence.entity.BookEntity;
 import com.usg.book.application.port.in.*;
+import com.usg.book.application.service.BookService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +28,7 @@ public class BookApiController {
     private final BookImageUploadUseCase bookImageUploadUseCase;
     private final MemberEmailGetter memberEmailGetter;
     private final GetBookUseCase getBookUseCase;
+    private final BookService bookService;
 
     @Operation(summary = "책 등록 *")
     @PostMapping(value = "/api/book", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
@@ -42,6 +48,12 @@ public class BookApiController {
                 .savedBookId(savedBookId)
                 .build(),
                 "책 등록이 완료되었습니다."));
+    }
+
+    @GetMapping(value="/api/book")
+    public ResponseEntity<Page<BookEntity>> findAll(@PageableDefault(page=1) Pageable pageable, HttpServletRequest servletRequest){
+        Page<BookEntity> books=bookService.findAll(pageable);
+        return ResponseEntity.ok(books);
     }
 
     private BookRegisterCommend requestToCommend(BookRegisterRequest request, String email) {
