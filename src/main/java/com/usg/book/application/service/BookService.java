@@ -1,6 +1,7 @@
 package com.usg.book.application.service;
 
 import com.usg.book.adapter.out.persistence.entity.BookEntity;
+import com.usg.book.adapter.out.persistence.entity.BookRepository;
 import com.usg.book.application.port.in.BookRegisterCommend;
 import com.usg.book.application.port.in.BookRegisterUseCase;
 import com.usg.book.application.port.in.GetBookServiceResponse;
@@ -11,6 +12,10 @@ import com.usg.book.application.port.out.BookPersistencePort;
 import com.usg.book.domain.Book;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +28,8 @@ public class BookService implements BookRegisterUseCase, GetBookUseCase {
     private final BookPersistencePort bookPersistencePort;
     private final BookISBNCheckPort bookISBNCheckPort;
     private final BookImagePersistencePort bookImagePersistencePort;
+    private final BookRepository bookRepository;
+
 
     @Override
     @Transactional
@@ -72,6 +79,16 @@ public class BookService implements BookRegisterUseCase, GetBookUseCase {
                 .author(findBookEntity.getAuthor())
                 .publisher(findBookEntity.getPublisher())
                 .build();
+
+    }
+
+    public Page<BookEntity> findAll(Pageable pageable) {
+        int page = pageable.getPageNumber() - 1;
+        int pageLimit = 20;
+
+        Page<BookEntity> bookPages=bookRepository.findAll(PageRequest.of(page,pageLimit, Sort.by(Sort.Direction.DESC,"id")));
+
+        return bookPages;
 
     }
 }
