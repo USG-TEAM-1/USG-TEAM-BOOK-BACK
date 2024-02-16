@@ -54,7 +54,7 @@ public class BookApiControllerTest {
                                                           String isbn) {
         return BookRegisterRequest
                 .builder()
-                .memberId(memberId)
+               // .memberId(memberId)
                 .bookName(bookName)
                 .bookComment(bookComment)
                 .bookPostName(bookPostName)

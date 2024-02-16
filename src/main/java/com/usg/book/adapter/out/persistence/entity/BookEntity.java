@@ -5,9 +5,11 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
 @Table(name = "book")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BookEntity {
