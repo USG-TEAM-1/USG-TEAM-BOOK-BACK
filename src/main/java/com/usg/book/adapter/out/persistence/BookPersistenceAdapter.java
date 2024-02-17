@@ -19,8 +19,11 @@ public class BookPersistenceAdapter implements BookPersistencePort {
                 .builder()
                 .email(book.getEmail())
                 .bookName(book.getBookName())
-                .bookComment(book.getBookComment())
+                .bookRealPrice(book.getBookRealPrice())
+                .author(book.getAuthor())
+                .publisher(book.getPublisher())
                 .bookPostName(book.getBookPostName())
+                .bookComment(book.getBookComment())
                 .bookPrice(book.getBookPrice())
                 .isbn(book.getIsbn())
                 .build();

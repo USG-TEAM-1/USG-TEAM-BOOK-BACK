@@ -35,4 +35,11 @@ public class BookImagePersistenceAdapter implements BookImagePersistencePort {
 
         return savedImageEntity.getId();
     }
+
+    @Override
+    public String getImageUrl(Long bookId) {
+        ImageEntity findImage = imageRepository.findByBookId(bookId);
+
+        return findImage.getGcsUrl();
+    }
 }

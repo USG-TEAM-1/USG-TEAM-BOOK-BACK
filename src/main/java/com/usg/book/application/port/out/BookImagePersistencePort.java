@@ -6,4 +6,5 @@ import com.usg.book.domain.Image;
 public interface BookImagePersistencePort {
 
     Long saveImage(Image image, BookEntity book);
+    String getImageUrl(Long bookId);
 }

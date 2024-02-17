@@ -2,30 +2,24 @@ package com.usg.book.adapter.in.web;
 
 import com.usg.book.adapter.in.web.dto.BookRegisterRequest;
 import com.usg.book.adapter.in.web.dto.BookRegisterResponse;
+import com.usg.book.adapter.in.web.dto.GetBookResponse;
 import com.usg.book.adapter.in.web.dto.BookUpdateRequest;
 import com.usg.book.adapter.in.web.dto.BookUpdateResponse;
 import com.usg.book.adapter.in.web.dto.Result;
 import com.usg.book.adapter.in.web.token.MemberEmailGetter;
-import com.usg.book.application.port.in.BookDeleteCommend;
-import com.usg.book.application.port.in.BookDeleteUseCase;
-import com.usg.book.application.port.in.BookImageUploadUseCase;
-import com.usg.book.application.port.in.BookRegisterCommend;
-import com.usg.book.application.port.in.BookRegisterUseCase;
-import com.usg.book.application.port.in.BookUpdateCommend;
-import com.usg.book.application.port.in.BookUpdateUseCase;
-
+import com.usg.book.adapter.out.persistence.entity.BookEntity;
+import com.usg.book.application.port.in.*;
+import com.usg.book.application.service.BookService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -37,6 +31,8 @@ public class BookApiController {
     private final BookDeleteUseCase bookDeleteUseCase;
     private final BookUpdateUseCase bookUpdateUseCase;
     private final MemberEmailGetter memberEmailGetter;
+    private final GetBookUseCase getBookUseCase;
+    private final BookService bookService;
 
     @Operation(summary = "책 등록 *")
     @PostMapping(value = "/api/book", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
@@ -44,8 +40,8 @@ public class BookApiController {
                                                HttpServletRequest servletRequest) {
 
         // JWT 에서 이메일 가져오기
-        // String email = memberEmailGetter.getMemberEmail(servletRequest.getHeader("Authorization"));
-        BookRegisterCommend bookRegisterCommend = requestToCommend(request, "email");
+        String email = memberEmailGetter.getMemberEmail(servletRequest.getHeader("Authorization"));
+        BookRegisterCommend bookRegisterCommend = requestToCommend(request, email);
         Long savedBookId = bookRegisterUseCase.registerBook(bookRegisterCommend);
 
         // 책 저장과 이미지 저장 트랜잭션 분리
@@ -57,7 +53,11 @@ public class BookApiController {
                 .build(),
                 "책 등록이 완료되었습니다."));
     }
-
+    @GetMapping(value="/api/book")
+    public ResponseEntity<Page<BookEntity>> findAll(@PageableDefault(page=1) Pageable pageable, HttpServletRequest servletRequest){
+        Page<BookEntity> books=bookService.findAll(pageable);
+        return ResponseEntity.ok(books);
+    }
 
     @Operation(summary = "책 삭제 *")
     @DeleteMapping("/api/book/{bookId}")
@@ -98,12 +98,37 @@ public class BookApiController {
                 .builder()
                 .email(email)
                 .bookName(request.getBookName())
-                .bookComment(request.getBookComment())
+                .bookRealPrice(request.getBookRealPrice())
+                .author(request.getAuthor())
+                .publisher(request.getPublisher())
                 .bookPostName(request.getBookPostName())
+                .bookComment(request.getBookComment())
                 .bookPrice(request.getBookPrice())
                 .isbn(request.getIsbn())
                 .build();
     }
+
+    @Operation(summary = "책 상세 조회")
+    @GetMapping("/api/book/{bookId}")
+    public ResponseEntity<Result> getBook(@PathVariable(name = "bookId") Long bookId) {
+
+        GetBookServiceResponse getBookServiceResponse = getBookUseCase.getBook(bookId);
+
+        return ResponseEntity.ok(new Result(GetBookResponse
+                .builder()
+                .bookName(getBookServiceResponse.getBookName())
+                .bookComment(getBookServiceResponse.getBookComment())
+                .bookPostName(getBookServiceResponse.getBookPostName())
+                .bookPrice(getBookServiceResponse.getBookPrice())
+                .bookRealPrice(getBookServiceResponse.getBookRealPrice())
+                .nickname(getBookServiceResponse.getNickname())
+                .imageUrl(getBookServiceResponse.getImageUrl())
+                .author(getBookServiceResponse.getAuthor())
+                .publisher(getBookServiceResponse.getPublisher())
+                .build(),
+                "책 조회가 완료되었습니다."));
+    }
+
 
     private BookUpdateCommend requestToUpdateCommend(BookUpdateRequest request, String email, Long bookId) {
         return BookUpdateCommend

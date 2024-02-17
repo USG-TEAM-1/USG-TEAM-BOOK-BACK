@@ -31,12 +31,15 @@ public class BookPersistenceAdapterTest {
         // given
         String email = "email";
         String bookName = "bookName";
+        Integer bookRealPrice = 100;
+        String author = "author";
+        String publisher = "publisher";
         String bookPostName = "bookPostName";
         String bookComment = "bookComment";
         Integer bookPrice = 10;
         String isbn = "isbn";
-        Book book = createBook(email, bookName, bookPostName, bookComment, bookPrice, isbn);
-        BookEntity bookEntity = createBookEntity(email, bookName, bookPostName, bookComment, bookPrice, isbn);
+        Book book = createBook(email, bookName, bookRealPrice, author, publisher, bookPostName, bookComment, bookPrice, isbn);
+        BookEntity bookEntity = createBookEntity(email, bookName, bookRealPrice, author, publisher, bookPostName, bookComment, bookPrice, isbn);
 
         // stub
         when(bookRepository.save(any(BookEntity.class))).thenReturn(bookEntity);
@@ -51,6 +54,9 @@ public class BookPersistenceAdapterTest {
 
     private Book createBook(String email,
                             String bookName,
+                            Integer bookRealPrice,
+                            String author,
+                            String publisher,
                             String bookComment,
                             String bookPostName,
                             Integer bookPrice,
@@ -59,8 +65,11 @@ public class BookPersistenceAdapterTest {
                 .builder()
                 .email(email)
                 .bookName(bookName)
-                .bookComment(bookComment)
+                .bookRealPrice(bookRealPrice)
+                .author(author)
+                .publisher(publisher)
                 .bookPostName(bookPostName)
+                .bookComment(bookComment)
                 .bookPrice(bookPrice)
                 .isbn(isbn)
                 .build();
@@ -73,11 +82,14 @@ public class BookPersistenceAdapterTest {
         Long bookId = 1L;
         String email = "email";
         String bookName = "bookName";
+        Integer bookRealPrice = 100;
+        String author = "author";
+        String publisher = "publisher";
         String bookPostName = "bookPostName";
         String bookComment = "bookComment";
         Integer bookPrice = 10;
         String isbn = "isbn";
-        BookEntity bookEntity = createBookEntity(email, bookName, bookPostName, bookComment, bookPrice, isbn);
+        BookEntity bookEntity = createBookEntity(email, bookName, bookRealPrice, author, publisher, bookPostName, bookComment, bookPrice, isbn);
 
         // stub
         when(bookRepository.findById(bookId)).thenReturn(Optional.of(bookEntity));
@@ -109,6 +121,9 @@ public class BookPersistenceAdapterTest {
 
     private BookEntity createBookEntity(String email,
                                         String bookName,
+                                        Integer bookRealPrice,
+                                        String author,
+                                        String publisher,
                                         String bookComment,
                                         String bookPostName,
                                         Integer bookPrice,
@@ -117,8 +132,11 @@ public class BookPersistenceAdapterTest {
                 .builder()
                 .email(email)
                 .bookName(bookName)
-                .bookComment(bookComment)
+                .bookRealPrice(bookRealPrice)
+                .author(author)
+                .publisher(publisher)
                 .bookPostName(bookPostName)
+                .bookComment(bookComment)
                 .bookPrice(bookPrice)
                 .isbn(isbn)
                 .build();

@@ -32,14 +32,17 @@ public class BookServiceTest {
         // given
         String email = "email";
         String bookName = "bookName";
-        String bookComment = "bookComment";
+        Integer bookRealPrice = 100;
+        String author = "author";
+        String publisher = "publisher";
         String bookPostName = "bookPostName";
+        String bookComment = "bookComment";
         Integer bookPrice = 10;
         String isbn = "isbn";
-        BookRegisterCommend bookRegisterCommend = createBookRegisterCommend(email, bookName, bookComment, bookPostName, bookPrice, isbn);
+        BookRegisterCommend bookRegisterCommend = createBookRegisterCommend(email, bookName, bookRealPrice, author, publisher, bookComment, bookPostName, bookPrice, isbn);
 
         // stub
-        doNothing().when(bookISBNCheckPort).bookIsbnCheck(isbn);
+        doNothing().when(bookISBNCheckPort).bookIsbnCheck(isbn, bookRealPrice);
         when(bookPersistencePort.registerBook(any(Book.class))).thenReturn(1L);
 
         // when
@@ -50,17 +53,23 @@ public class BookServiceTest {
     }
 
     private BookRegisterCommend createBookRegisterCommend(String email,
-                                        String bookName,
-                                        String bookComment,
-                                        String bookPostName,
-                                        Integer bookPrice,
-                                        String isbn) {
+                                                          String bookName,
+                                                          Integer bookRealPrice,
+                                                          String author,
+                                                          String publisher,
+                                                          String bookComment,
+                                                          String bookPostName,
+                                                          Integer bookPrice,
+                                                          String isbn) {
         return BookRegisterCommend
                 .builder()
                 .email(email)
                 .bookName(bookName)
-                .bookComment(bookComment)
+                .bookRealPrice(bookRealPrice)
+                .author(author)
+                .publisher(publisher)
                 .bookPostName(bookPostName)
+                .bookComment(bookComment)
                 .bookPrice(bookPrice)
                 .isbn(isbn)
                 .build();
