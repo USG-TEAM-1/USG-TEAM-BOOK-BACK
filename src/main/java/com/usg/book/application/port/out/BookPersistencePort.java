@@ -7,4 +7,6 @@ public interface BookPersistencePort {
 
     Long registerBook(Book book);
     BookEntity findById(Long bookId);
+    void deleteById(Long bookId);
+    BookEntity save(BookEntity bookEntity);
 }
