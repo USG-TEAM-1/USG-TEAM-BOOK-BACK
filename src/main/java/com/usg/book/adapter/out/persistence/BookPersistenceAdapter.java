@@ -39,4 +39,14 @@ public class BookPersistenceAdapter implements BookPersistencePort {
                 () -> new IllegalArgumentException("Book Not Exist")
         );
     }
+
+    @Override
+    public void deleteById(Long bookId){
+        bookRepository.deleteById(bookId);
+    }
+
+    @Override
+    public BookEntity save(BookEntity bookEntity){
+        return bookRepository.save(bookEntity);
+    }
 }
