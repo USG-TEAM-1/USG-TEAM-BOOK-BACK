@@ -1,7 +1,10 @@
 package com.usg.book.application.service;
 
+import com.usg.book.adapter.out.api.dto.BookAllResponse;
 import com.usg.book.adapter.out.persistence.entity.BookEntity;
 import com.usg.book.adapter.out.persistence.entity.BookRepository;
+import com.usg.book.adapter.out.persistence.entity.ImageEntity;
+import com.usg.book.adapter.out.persistence.entity.ImageRepository;
 import com.usg.book.application.port.in.BookRegisterCommend;
 import com.usg.book.application.port.in.BookRegisterUseCase;
 import com.usg.book.application.port.in.GetBookServiceResponse;
@@ -12,12 +15,12 @@ import com.usg.book.application.port.out.BookPersistencePort;
 import com.usg.book.domain.Book;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -29,6 +32,7 @@ public class BookService implements BookRegisterUseCase, GetBookUseCase {
     private final BookISBNCheckPort bookISBNCheckPort;
     private final BookImagePersistencePort bookImagePersistencePort;
     private final BookRepository bookRepository;
+    private final ImageRepository imageRepository;
 
 
     @Override
@@ -82,13 +86,22 @@ public class BookService implements BookRegisterUseCase, GetBookUseCase {
 
     }
 
-    public Page<BookEntity> findAll(Pageable pageable) {
+    public Page<BookAllResponse> findAll(Pageable pageable) {
         int page = pageable.getPageNumber() - 1;
         int pageLimit = 20;
 
-        Page<BookEntity> bookPages=bookRepository.findAll(PageRequest.of(page,pageLimit, Sort.by(Sort.Direction.DESC,"id")));
+        Page<BookEntity> bookPages= bookRepository.findAll(PageRequest.of(page,pageLimit, Sort.by(Sort.Direction.DESC,"id")));
+        List<BookEntity> books=bookPages.stream().toList();
 
-        return bookPages;
+        List<BookAllResponse> bookAllResponseList = new ArrayList<>();
+        for (BookEntity book:books) {
+            List<ImageEntity> image=imageRepository.findByBookEntity(book);
+            BookAllResponse bookAllResponse = BookAllResponse.toDto(book, image);
+            bookAllResponseList.add(bookAllResponse);
+        }
+
+
+        return new PageImpl<>(bookAllResponseList, pageable, bookPages.getTotalElements());
 
     }
 }
