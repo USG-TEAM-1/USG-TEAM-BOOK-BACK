@@ -8,7 +8,6 @@ import com.usg.book.adapter.in.web.dto.BookUpdateResponse;
 import com.usg.book.adapter.in.web.dto.Result;
 import com.usg.book.adapter.in.web.token.MemberEmailGetter;
 import com.usg.book.adapter.out.api.dto.BookAllResponse;
-import com.usg.book.adapter.out.persistence.entity.BookEntity;
 import com.usg.book.application.port.in.*;
 import com.usg.book.application.service.BookService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -123,7 +122,7 @@ public class BookApiController {
                 .bookPrice(getBookServiceResponse.getBookPrice())
                 .bookRealPrice(getBookServiceResponse.getBookRealPrice())
                 .nickname(getBookServiceResponse.getNickname())
-                .imageUrl(getBookServiceResponse.getImageUrl())
+                .imageUrls(getBookServiceResponse.getImageUrls())
                 .author(getBookServiceResponse.getAuthor())
                 .publisher(getBookServiceResponse.getPublisher())
                 .build(),
