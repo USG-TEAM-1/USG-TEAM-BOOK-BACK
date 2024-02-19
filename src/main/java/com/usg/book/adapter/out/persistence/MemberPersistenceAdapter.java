@@ -19,4 +19,9 @@ public class MemberPersistenceAdapter implements MemberPersistencePort {
     public void saveMember(Member member) {
         redisTemplate.opsForValue().set(RedisKeyPrefix + member.getEmail(), member.getNickname());
     }
+
+    @Override
+    public String getNicknameByEmail(String email) {
+        return redisTemplate.opsForValue().get(RedisKeyPrefix + email);
+    }
 }
