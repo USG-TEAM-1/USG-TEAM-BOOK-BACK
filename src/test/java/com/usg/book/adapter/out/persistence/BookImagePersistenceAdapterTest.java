@@ -13,6 +13,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -67,14 +69,16 @@ public class BookImagePersistenceAdapterTest {
         Long bookId = 1L;
         String gcsUrl = "gcsUrl";
         ImageEntity imageEntity = ImageEntity.builder().gcsUrl(gcsUrl).build();
+        List<ImageEntity> imageEntities = new ArrayList<>();
+        imageEntities.add(imageEntity);
 
         // stub
-        when(imageRepository.findByBookId(bookId)).thenReturn(imageEntity);
+        when(imageRepository.findByBookId(bookId)).thenReturn(imageEntities);
 
         // when
-        String imageUrl = bookImagePersistenceAdapter.getImageUrl(bookId);
+        List<String> imageUrls = bookImagePersistenceAdapter.getImageUrls(bookId);
 
         // then
-        assertThat(imageUrl).isEqualTo(gcsUrl);
+        assertThat(imageUrls.get(0)).isEqualTo(gcsUrl);
     }
 }

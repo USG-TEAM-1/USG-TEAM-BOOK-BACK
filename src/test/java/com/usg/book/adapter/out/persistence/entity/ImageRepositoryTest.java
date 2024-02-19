@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
@@ -90,9 +92,9 @@ public class ImageRepositoryTest {
         ImageEntity savedImageEntity = imageRepository.save(imageEntity);
 
         // when
-        ImageEntity findImageEntity = imageRepository.findByBookId(savedBookEntity.getId());
+        List<ImageEntity> findImageEntities = imageRepository.findByBookId(savedBookEntity.getId());
 
         // then
-        Assertions.assertThat(findImageEntity).isEqualTo(savedImageEntity);
+        Assertions.assertThat(findImageEntities.get(0)).isEqualTo(savedImageEntity);
     }
 }
