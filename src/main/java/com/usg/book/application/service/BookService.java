@@ -12,6 +12,7 @@ import com.usg.book.application.port.in.GetBookUseCase;
 import com.usg.book.application.port.out.BookISBNCheckPort;
 import com.usg.book.application.port.out.BookImagePersistencePort;
 import com.usg.book.application.port.out.BookPersistencePort;
+import com.usg.book.application.port.out.MemberPersistencePort;
 import com.usg.book.domain.Book;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,7 @@ public class BookService implements BookRegisterUseCase, GetBookUseCase {
     private final BookImagePersistencePort bookImagePersistencePort;
     private final BookRepository bookRepository;
     private final ImageRepository imageRepository;
+    private final MemberPersistencePort memberPersistencePort;
 
 
     @Override
@@ -67,9 +69,10 @@ public class BookService implements BookRegisterUseCase, GetBookUseCase {
     @Override
     public GetBookServiceResponse getBook(Long bookId) {
         BookEntity findBookEntity = bookPersistencePort.findById(bookId);
-        String imageUrl = bookImagePersistencePort.getImageUrl(bookId);
+        List<String> imageUrls = bookImagePersistencePort.getImageUrls(bookId);
 
         // kafka 를 이용해 닉네임 알아오기
+        String nickname = memberPersistencePort.getNicknameByEmail(findBookEntity.getEmail());
 
         return GetBookServiceResponse
                 .builder()
@@ -78,8 +81,8 @@ public class BookService implements BookRegisterUseCase, GetBookUseCase {
                 .bookPostName(findBookEntity.getBookPostName())
                 .bookPrice(findBookEntity.getBookPrice())
                 .bookRealPrice(findBookEntity.getBookRealPrice())
-//                .nickname()
-                .imageUrl(imageUrl)
+                .nickname(nickname)
+                .imageUrls(imageUrls)
                 .author(findBookEntity.getAuthor())
                 .publisher(findBookEntity.getPublisher())
                 .build();
