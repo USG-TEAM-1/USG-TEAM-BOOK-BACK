@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -42,4 +43,16 @@ public class BookImagePersistenceAdapter implements BookImagePersistencePort {
 
         return findImage.getGcsUrl();
     }
+
+    @Override
+    public List<ImageEntity> getImagesByBookId(Long bookId) {
+        return imageRepository.findImagesByBookId(bookId);
+    }
+
+    @Override
+    public void deleteImage(ImageEntity imageEntity) {
+        
+        imageRepository.deleteById(imageEntity.getId());
+    }
 }
+

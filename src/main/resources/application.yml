@@ -7,8 +7,7 @@ spring:
     gcp:
       storage:
         credentials:
-          location: 
-          classpath: ${GCS_KEY}.json
+          location: classpath:${GCS_KEY}.json
         project-id: ${GCS_ID}
         bucket: ${BUCKET_NAME}
   

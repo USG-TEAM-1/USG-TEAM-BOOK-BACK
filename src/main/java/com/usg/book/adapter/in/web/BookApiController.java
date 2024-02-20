@@ -28,6 +28,8 @@ public class BookApiController {
 
     private final BookRegisterUseCase bookRegisterUseCase;
     private final BookImageUploadUseCase bookImageUploadUseCase;
+    private final BookImageDeleteUseCase bookImageDeleteUseCase;
+    private final BookImageUpdateUseCase bookImageUpdateUseCase;
     private final BookDeleteUseCase bookDeleteUseCase;
     private final BookUpdateUseCase bookUpdateUseCase;
     private final MemberEmailGetter memberEmailGetter;
@@ -64,14 +66,17 @@ public class BookApiController {
     public ResponseEntity<Result> deleteBook(@PathVariable Long bookId,
                                              HttpServletRequest servletRequest) {
 
-    // JWT 에서 이메일 가져오기
+     // JWT 에서 이메일 가져오기
         //String email = memberEmailGetter.getMemberEmail(servletRequest.getHeader("Authorization"));
         BookDeleteCommend bookDeleteCommend = BookDeleteCommend.builder()
                 //.email(email)
                 .bookId(bookId)
                 .build();
 
+        bookImageDeleteUseCase.deleteImages(bookId);
+        
         bookDeleteUseCase.deleteBook(bookDeleteCommend);
+        
 
         return ResponseEntity.ok(new Result(null, "책 삭제가 완료되었습니다."));
     }
@@ -87,8 +92,7 @@ public class BookApiController {
         BookUpdateCommend bookUpdateCommend = requestToUpdateCommend(request, "email", bookId);
         bookUpdateUseCase.updateBook(bookUpdateCommend);
 
-        // 이미지 수정 로직 구현 (bookImageUpdateUseCase 사용)
-        //bookImageUpdateUseCase.
+        bookImageUpdateUseCase.updateImages(request.getImages(), bookId);
 
         return ResponseEntity.ok(new Result(BookUpdateResponse.builder().updatedBookId(bookId).build(),"책 수정이 완료되었습니다."));
     }
