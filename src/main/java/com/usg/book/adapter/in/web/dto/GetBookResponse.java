@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class GetBookResponse {
@@ -15,19 +17,19 @@ public class GetBookResponse {
     private Integer bookPrice;
     private Integer bookRealPrice;
     private String nickname;
-    private String imageUrl;
+    private List<String> imageUrls;
     private String author;
     private String publisher;
 
     @Builder
-    public GetBookResponse(String bookName, String bookComment, String bookPostName, Integer bookPrice, Integer bookRealPrice, String nickname, String imageUrl, String author, String publisher) {
+    public GetBookResponse(String bookName, String bookComment, String bookPostName, Integer bookPrice, Integer bookRealPrice, String nickname, List<String> imageUrls, String author, String publisher) {
         this.bookName = bookName;
         this.bookComment = bookComment;
         this.bookPostName = bookPostName;
         this.bookPrice = bookPrice;
         this.bookRealPrice = bookRealPrice;
         this.nickname = nickname;
-        this.imageUrl = imageUrl;
+        this.imageUrls = imageUrls;
         this.author = author;
         this.publisher = publisher;
     }

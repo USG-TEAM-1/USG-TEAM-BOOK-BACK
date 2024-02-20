@@ -11,6 +11,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -38,10 +41,15 @@ public class BookImagePersistenceAdapter implements BookImagePersistencePort {
     }
 
     @Override
-    public String getImageUrl(Long bookId) {
-        ImageEntity findImage = imageRepository.findByBookId(bookId);
+    public List<String> getImageUrls(Long bookId) {
+        List<ImageEntity> imageList = imageRepository.findByBookId(bookId);
 
-        return findImage.getGcsUrl();
+        List<String> imageUrls = new ArrayList<>();
+        for (ImageEntity imageEntity : imageList) {
+            imageUrls.add(imageEntity.getGcsUrl());
+        }
+
+        return imageUrls;
     }
 
     @Override
