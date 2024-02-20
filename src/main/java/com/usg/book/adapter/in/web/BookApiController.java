@@ -42,8 +42,8 @@ public class BookApiController {
                                                HttpServletRequest servletRequest) {
 
         // JWT 에서 이메일 가져오기
-        String email = memberEmailGetter.getMemberEmail(servletRequest.getHeader("Authorization"));
-        BookRegisterCommend bookRegisterCommend = requestToCommend(request, email);
+//        String email = memberEmailGetter.getMemberEmail(servletRequest.getHeader("Authorization"));
+        BookRegisterCommend bookRegisterCommend = requestToCommend(request, "email");
         Long savedBookId = bookRegisterUseCase.registerBook(bookRegisterCommend);
 
         // 책 저장과 이미지 저장 트랜잭션 분리
@@ -63,11 +63,11 @@ public class BookApiController {
 
     @Operation(summary = "책 삭제 *")
     @DeleteMapping("/api/book/{bookId}")
-    public ResponseEntity<Result> deleteBook(@PathVariable Long bookId,
+    public ResponseEntity<Result> deleteBook(@PathVariable(name = "bookId") Long bookId,
                                              HttpServletRequest servletRequest) {
 
      // JWT 에서 이메일 가져오기
-        //String email = memberEmailGetter.getMemberEmail(servletRequest.getHeader("Authorization"));
+        //String email = memberEmailGetter.getMemberEmail(servletRequest.getHe가ader("Authorization"));
         BookDeleteCommend bookDeleteCommend = BookDeleteCommend.builder()
                 //.email(email)
                 .bookId(bookId)
@@ -83,7 +83,7 @@ public class BookApiController {
 
     @Operation(summary = "책 수정 *")
     @PutMapping(value = "/api/book/{bookId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<Result> updateBook(@PathVariable Long bookId,
+    public ResponseEntity<Result> updateBook(@PathVariable(name = "bookId") Long bookId,
                                          @ModelAttribute("BookUpdateRequest") BookUpdateRequest request,
                                          HttpServletRequest servletRequest) {
 
@@ -142,7 +142,6 @@ public class BookApiController {
                 .bookPostName(request.getBookPostName())
                 .bookComment(request.getBookComment())
                 .bookPrice(request.getBookPrice())
-                //.images(request.getImages())  // 이미지 수정 로직에 따라 수정
                 .build();
     }
 }
