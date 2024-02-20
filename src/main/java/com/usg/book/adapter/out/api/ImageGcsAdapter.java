@@ -2,6 +2,7 @@ package com.usg.book.adapter.out.api;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
@@ -37,7 +38,7 @@ public class ImageGcsAdapter implements BookImageGcsPort {
 
         try {
             InputStream keyFile = ResourceUtils.getURL(keyFilename).openStream();
-
+            
             Storage storage = StorageOptions.newBuilder()
                     .setCredentials(GoogleCredentials.fromStream(keyFile))
                     .build()
@@ -46,7 +47,7 @@ public class ImageGcsAdapter implements BookImageGcsPort {
             MultipartFile multipartFile = image.getImage();
             String ext = multipartFile.getContentType();
             String storeFilename = image.getStoreFilename();
-
+        
             BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, storeFilename)
                     .setContentType(ext)
                     .build();
@@ -56,6 +57,28 @@ public class ImageGcsAdapter implements BookImageGcsPort {
             return "https://storage.googleapis.com/" + bucketName + "/" + storeFilename;
         } catch (Exception e) {
             throw new IllegalArgumentException("Image Error");
+        }
+            
+    }
+
+    @Override
+    public void deleteImage(String imageUrl) {
+        try {
+            InputStream keyFile = ResourceUtils.getURL(keyFilename).openStream();
+
+            Storage storage = StorageOptions.newBuilder()
+                    .setCredentials(GoogleCredentials.fromStream(keyFile))
+                    .build()
+                    .getService();
+
+            String[] urlParts = imageUrl.split("/");
+            String bucketName = urlParts[3];
+            String objectName = urlParts[urlParts.length - 1];
+
+            storage.delete(BlobId.of(bucketName, objectName));
+        } catch (Exception e) {
+            log.error("Error deleting image from GCS: {}", e.getMessage());
+            throw new IllegalArgumentException("Image Deletion Error");
         }
     }
 }

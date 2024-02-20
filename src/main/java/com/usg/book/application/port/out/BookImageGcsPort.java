@@ -4,5 +4,6 @@ import com.usg.book.domain.Image;
 
 public interface BookImageGcsPort {
 
-    String uploadImage(Image image);
+    String uploadImage(Image image) ;
+    void deleteImage(String imageUrl);
 }
