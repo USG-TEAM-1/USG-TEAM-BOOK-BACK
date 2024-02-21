@@ -28,11 +28,6 @@ spring:
         project-id: mockProjectId
         bucket: mockBucket
 
-jwt:
-  secret:
-    key: "ThisIsMockSecretKeyForTestingApiControllersInTestPackage"
-
-
 open:
   library:
     key: "mockLibraryKey"
