@@ -42,8 +42,8 @@ public class BookApiController {
                                                HttpServletRequest servletRequest) {
 
         // JWT 에서 이메일 가져오기
-//        String email = memberEmailGetter.getMemberEmail(servletRequest.getHeader("Authorization"));
-        BookRegisterCommend bookRegisterCommend = requestToCommend(request, "email");
+        String email = memberEmailGetter.getMemberEmail(servletRequest.getHeader("Authorization"));
+        BookRegisterCommend bookRegisterCommend = requestToCommend(request, email);
         Long savedBookId = bookRegisterUseCase.registerBook(bookRegisterCommend);
 
         // 책 저장과 이미지 저장 트랜잭션 분리
@@ -67,9 +67,9 @@ public class BookApiController {
                                              HttpServletRequest servletRequest) {
 
      // JWT 에서 이메일 가져오기
-        //String email = memberEmailGetter.getMemberEmail(servletRequest.getHe가ader("Authorization"));
+        String email = memberEmailGetter.getMemberEmail(servletRequest.getHeader("Authorization"));
         BookDeleteCommend bookDeleteCommend = BookDeleteCommend.builder()
-                //.email(email)
+                .email(email)
                 .bookId(bookId)
                 .build();
 
@@ -88,8 +88,8 @@ public class BookApiController {
                                          HttpServletRequest servletRequest) {
 
         // JWT 에서 이메일 가져오기
-        //String email = memberEmailGetter.getMemberEmail(servletRequest.getHeader("Authorization"));
-        BookUpdateCommend bookUpdateCommend = requestToUpdateCommend(request, "email", bookId);
+        String email = memberEmailGetter.getMemberEmail(servletRequest.getHeader("Authorization"));
+        BookUpdateCommend bookUpdateCommend = requestToUpdateCommend(request, email, bookId);
         bookUpdateUseCase.updateBook(bookUpdateCommend);
 
         bookImageUpdateUseCase.updateImages(request.getImages(), bookId);

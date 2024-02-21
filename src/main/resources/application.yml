@@ -14,11 +14,6 @@ spring:
           location: classpath:${GCS_KEY}.json
         project-id: ${GCS_ID}
         bucket: ${BUCKET_NAME}
-  
-
-jwt:
-  secret:
-    key: ${SECRET_KEY}
 
 open:
   library:
