@@ -2,6 +2,13 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.2.2'
 	id 'io.spring.dependency-management' version '1.1.4'
+	// jacoco 추가
+	id 'jacoco'
+}
+
+// jacoco 추가
+jacoco {
+	toolVersion = "0.8.7" // JaCoCo 버전을 필요에 맞게 업데이트하세요.
 }
 
 group = 'com.usg'
@@ -34,6 +41,11 @@ dependencies {
 	// swagger
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
 
+	// jwt
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
 	// gcs
 	implementation group: 'org.springframework.cloud', name: 'spring-cloud-gcp-starter', version: '1.2.5.RELEASE'
 	implementation group: 'org.springframework.cloud', name: 'spring-cloud-gcp-storage', version: '1.2.5.RELEASE'
@@ -47,4 +59,31 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+// 테스트 태스크 설정
+test {
+	useJUnitPlatform()
+	finalizedBy jacocoTestReport // 테스트 후 JaCoCo 리포트 생성
+}
+
+// 리포트 생성 명령어: ./gradlew --console verbose test jacocoTestReport jacocoTestCoverageVerification
+// JaCoCo 리포트 설정
+jacocoTestReport {
+	reports {
+	}
+
+	afterEvaluate {
+		classDirectories.setFrom(files(classDirectories.files.collect {
+			fileTree(dir: it, exclude: [
+					"**/Q*.class",
+					"**/*Dto.*",
+					"**/*dto*"
+			])
+		}))
+	}
+}
+
+clean {
+	delete file('src/main/generated')
 }

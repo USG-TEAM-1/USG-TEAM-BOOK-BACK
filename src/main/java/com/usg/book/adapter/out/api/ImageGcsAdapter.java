@@ -56,6 +56,7 @@ public class ImageGcsAdapter implements BookImageGcsPort {
 
             return "https://storage.googleapis.com/" + bucketName + "/" + storeFilename;
         } catch (Exception e) {
+            log.info("error : {}", e.getMessage());
             throw new IllegalArgumentException("Image Error");
         }
             
