@@ -5,6 +5,9 @@ import com.usg.book.adapter.out.persistence.entity.BookEntity;
 import com.usg.book.application.port.out.BookPersistencePort;
 import com.usg.book.domain.Book;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -48,5 +51,10 @@ public class BookPersistenceAdapter implements BookPersistencePort {
     @Override
     public BookEntity save(BookEntity bookEntity){
         return bookRepository.save(bookEntity);
+    }
+
+    @Override
+    public Page<BookEntity> findAll(Pageable pageable){
+        return bookRepository.findAll(pageable);
     }
 }
