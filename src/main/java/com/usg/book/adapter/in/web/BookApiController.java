@@ -83,7 +83,7 @@ public class BookApiController {
 
     @Operation(summary = "책 삭제 *")
     @DeleteMapping("/api/book/{bookId}")
-    public ResponseEntity<Result> deleteBook(@PathVariable Long bookId,
+    public ResponseEntity<Result> deleteBook(@PathVariable(name = "bookId") Long bookId,
                                              HttpServletRequest servletRequest) {
 
      // JWT 에서 이메일 가져오기
@@ -103,7 +103,7 @@ public class BookApiController {
 
     @Operation(summary = "책 수정 *")
     @PutMapping(value = "/api/book/{bookId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<Result> updateBook(@PathVariable Long bookId,
+    public ResponseEntity<Result> updateBook(@PathVariable(name = "bookId") Long bookId,
                                          @ModelAttribute("BookUpdateRequest") BookUpdateRequest request,
                                          HttpServletRequest servletRequest) {
 

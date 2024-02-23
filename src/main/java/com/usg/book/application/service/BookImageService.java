@@ -93,6 +93,7 @@ public class BookImageService implements BookImageUploadUseCase, BookImageDelete
     }
 
     @Override
+    @Transactional
     public void updateImages(List<MultipartFile> images, Long bookId) {
 
         if (images.size() > 10) {
@@ -100,7 +101,7 @@ public class BookImageService implements BookImageUploadUseCase, BookImageDelete
         }
         
         //책과 연관된 이미지를 삭제
-        //deleteImages(bookId);
+        deleteImages(bookId);
         List<ImageEntity> imageEntities = bookImagePersistencePort.getImagesByBookId(bookId);
 
         for (ImageEntity imageEntity : imageEntities) {
