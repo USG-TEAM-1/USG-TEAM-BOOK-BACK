@@ -62,5 +62,10 @@ public class BookImagePersistenceAdapter implements BookImagePersistencePort {
         
         imageRepository.deleteById(imageEntity.getId());
     }
+
+    @Override
+    public List<ImageEntity> findByBookEntity(BookEntity book){
+        return imageRepository.findByBookEntity(book);
+    }
 }
 
