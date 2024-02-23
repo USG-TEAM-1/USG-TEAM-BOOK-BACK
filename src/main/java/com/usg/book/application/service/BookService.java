@@ -1,6 +1,6 @@
 package com.usg.book.application.service;
 
-import com.usg.book.adapter.out.api.dto.BookAllResponse;
+import com.usg.book.adapter.in.web.dto.BookAllResponse;
 import com.usg.book.adapter.out.persistence.entity.BookEntity;
 import com.usg.book.adapter.out.persistence.entity.BookRepository;
 import com.usg.book.adapter.out.persistence.entity.ImageEntity;
@@ -11,6 +11,8 @@ import com.usg.book.application.port.in.BookRegisterCommend;
 import com.usg.book.application.port.in.BookRegisterUseCase;
 import com.usg.book.application.port.in.BookUpdateCommend;
 import com.usg.book.application.port.in.BookUpdateUseCase;
+import com.usg.book.application.port.in.BookAllServiceResponse;
+import com.usg.book.application.port.in.BookAllUseCase;
 import com.usg.book.application.port.in.GetBookServiceResponse;
 import com.usg.book.application.port.in.GetBookUseCase;
 import com.usg.book.application.port.out.BookISBNCheckPort;
@@ -25,10 +27,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,7 +38,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class BookService implements BookRegisterUseCase, GetBookUseCase, BookUpdateUseCase, BookDeleteUseCase {
+public class BookService implements BookRegisterUseCase, GetBookUseCase, BookUpdateUseCase, BookDeleteUseCase ,BookAllUseCase{
 
     private final BookPersistencePort bookPersistencePort;
     private final BookISBNCheckPort bookISBNCheckPort;
@@ -102,23 +100,36 @@ public class BookService implements BookRegisterUseCase, GetBookUseCase, BookUpd
 
     }
 
-    public Page<BookAllResponse> findAll(Pageable pageable) {
+    @Override
+    public Page<BookAllServiceResponse> findAll(Pageable pageable) {
         int page = pageable.getPageNumber() - 1;
         int pageLimit = 20;
 
-        Page<BookEntity> bookPages= bookRepository.findAll(PageRequest.of(page,pageLimit, Sort.by(Sort.Direction.DESC,"id")));
+        Page<BookEntity> bookPages= bookPersistencePort.findAll(PageRequest.of(page,pageLimit, Sort.by(Sort.Direction.DESC,"id")));
         List<BookEntity> books=bookPages.stream().toList();
+        
+        List<BookAllServiceResponse> bookAllResponseList = new ArrayList<>();
 
-        List<BookAllResponse> bookAllResponseList = new ArrayList<>();
         for (BookEntity book:books) {
-            List<ImageEntity> image=imageRepository.findByBookEntity(book);
-            BookAllResponse bookAllResponse = BookAllResponse.toDto(book, image);
-            bookAllResponseList.add(bookAllResponse);
+            //List<ImageEntity> image = bookImagePersistencePort.findByBookEntity(book);
+            // BookAllResponse bookAllResponse = BookAllResponse.toDto(book, image);
+            // bookAllResponseList.add(bookAllResponse);
+
+            List<String> imageUrls = bookImagePersistencePort.getImageUrls(book.getId());
+            BookAllServiceResponse bookAllServiceResponse = BookAllServiceResponse.builder()
+                .bookName(book.getBookName())
+                .bookPostName(book.getBookPostName())
+                .bookPrice(book.getBookPrice())
+                .bookRealPrice(book.getBookRealPrice())
+                .imageUrls(imageUrls)
+                .author(book.getAuthor())
+                .publisher(book.getPublisher())
+                .build();
+
+            bookAllResponseList.add(bookAllServiceResponse);
         }
-
-
         return new PageImpl<>(bookAllResponseList, pageable, bookPages.getTotalElements());
-
+        
     }
     
     @Override
