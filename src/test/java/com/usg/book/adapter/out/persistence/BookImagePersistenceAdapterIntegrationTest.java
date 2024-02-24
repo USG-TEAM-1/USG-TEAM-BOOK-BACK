@@ -49,13 +49,30 @@ public class BookImagePersistenceAdapterIntegrationTest extends IntegrationExter
     }
 
     @Test
-    @DisplayName("Book PK 로 이미지 엔티티들을 조회한다.")
-    void getImagesUrlsTest() {
+    @DisplayName("Book PK 를 이용해 이미지 gcsUrl 을 반환한다.")
+    void getImageUrlsTest() {
         // given
         BookEntity savedBookEntity = createBookEntity();
-        ImageEntity imageEntity1 = createImageEntity(savedBookEntity);
-        ImageEntity imageEntity2 = createImageEntity(savedBookEntity);
-        ImageEntity imageEntity3 = createImageEntity(savedBookEntity);
+        ImageEntity imageEntity1 = createImageEntity(savedBookEntity, "gcsUrl1");
+        ImageEntity imageEntity2 = createImageEntity(savedBookEntity, "gcsUrl2");
+        ImageEntity imageEntity3 = createImageEntity(savedBookEntity, "gcsUrl3");
+
+        // when
+        List<String> imageUrls = bookImagePersistenceAdapter.getImageUrls(savedBookEntity.getId());
+
+        // then
+        assertThat(imageUrls).hasSize(3)
+                .contains("gcsUrl1", "gcsUrl2", "gcsUrl3");
+    }
+
+    @Test
+    @DisplayName("Book PK 로 이미지 엔티티들을 조회한다.")
+    void getImagesByBookIdTest() {
+        // given
+        BookEntity savedBookEntity = createBookEntity();
+        ImageEntity imageEntity1 = createImageEntity(savedBookEntity, "gcsUrl");
+        ImageEntity imageEntity2 = createImageEntity(savedBookEntity, "gcsUrl");
+        ImageEntity imageEntity3 = createImageEntity(savedBookEntity, "gcsUrl");
 
         // when
         List<ImageEntity> imageEntities = bookImagePersistenceAdapter.getImagesByBookId(savedBookEntity.getId());
@@ -71,13 +88,13 @@ public class BookImagePersistenceAdapterIntegrationTest extends IntegrationExter
         return bookRepository.save(bookEntity);
     }
 
-    private ImageEntity createImageEntity(BookEntity bookEntity) {
+    private ImageEntity createImageEntity(BookEntity bookEntity, String gcsUrl) {
         MockMultipartFile imageFile
                 = new MockMultipartFile("image", "image.jpg", "image/jpeg", new byte[10]);
         ImageEntity imageEntity = ImageEntity.builder()
                 .uploadFilename(imageFile.getOriginalFilename())
                 .storeFilename("storeFilename")
-                .gcsUrl("gcsUrl")
+                .gcsUrl(gcsUrl)
                 .bookEntity(bookEntity)
                 .build();
         return imageRepository.save(imageEntity);
