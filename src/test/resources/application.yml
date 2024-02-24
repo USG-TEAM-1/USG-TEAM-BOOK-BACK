@@ -28,6 +28,11 @@ spring:
         project-id: mockProjectId
         bucket: mockBucket
 
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: book
+
 jwt:
   secret:
     key: "ThisIsMockSecretKeyForTestingApiControllersInTestPackage"
