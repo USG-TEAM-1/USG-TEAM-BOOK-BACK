@@ -14,7 +14,7 @@ public class BookRepositoryTest {
     private BookRepository bookRepository;
 
     @Test
-    @DisplayName("책 리포지토리 책 등록 테스트")
+    @DisplayName("책 엔티티를 데이터베이스에 저장한다.")
     void saveTest() {
         // given
         String email = "email";
@@ -33,6 +33,16 @@ public class BookRepositoryTest {
 
         // then
         assertThat(savedBook).isEqualTo(bookEntity);
+        assertThat(savedBook.getId()).isEqualTo(bookEntity.getId());
+        assertThat(savedBook.getEmail()).isEqualTo(bookEntity.getEmail());
+        assertThat(savedBook.getBookName()).isEqualTo(bookEntity.getBookName());
+        assertThat(savedBook.getBookRealPrice()).isEqualTo(bookEntity.getBookRealPrice());
+        assertThat(savedBook.getAuthor()).isEqualTo(bookEntity.getAuthor());
+        assertThat(savedBook.getPublisher()).isEqualTo(bookEntity.getPublisher());
+        assertThat(savedBook.getBookPostName()).isEqualTo(bookEntity.getBookPostName());
+        assertThat(savedBook.getBookComment()).isEqualTo(bookEntity.getBookComment());
+        assertThat(savedBook.getBookPrice()).isEqualTo(bookEntity.getBookPrice());
+        assertThat(savedBook.getIsbn()).isEqualTo(bookEntity.getIsbn());
     }
 
     private BookEntity createBookEntity(String email,
