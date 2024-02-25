@@ -35,6 +35,33 @@ public class BookPersistenceAdapterIntegrationTest extends IntegrationExternalAp
         assertThat(findBookEntity.getId()).isEqualTo(savedBookId);
     }
 
+    @Test
+    @DisplayName("책 PK를 이용해 책 엔티티를 조회하여 책 도메인으로 반환한다.")
+    void findBookByIdTest() {
+        // given
+        Book book = createBook();
+        Long savedBookId = bookPersistenceAdapter.registerBook(book);
+
+        // when
+        Book findBook = bookPersistenceAdapter.findBookById(savedBookId);
+
+        // then
+        assertThat(findBook.getIsbn()).isEqualTo(book.getIsbn());
+    }
+
+    @Test
+    @DisplayName("다른 책 PK를 이용해 책 엔티티를 조회하면 실패한다.")
+    void findBookByIdFailTest() {
+        // given
+        Book book = createBook();
+        Long savedBookId = bookPersistenceAdapter.registerBook(book);
+
+        // when // then
+        assertThatThrownBy(() -> bookPersistenceAdapter.findBookById((savedBookId) + 1))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Book Not Exist");
+    }
+
     private Book createBook() {
         return Book.builder()
                 .email("email")
