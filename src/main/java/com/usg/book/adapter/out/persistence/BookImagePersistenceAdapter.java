@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -54,8 +55,18 @@ public class BookImagePersistenceAdapter implements BookImagePersistencePort {
     }
 
     @Override
-    public List<ImageEntity> getImagesByBookId(Long bookId) {
-        return imageRepository.findImagesByBookId(bookId);
+    public List<Image> getImagesByBookId(Long bookId) {
+         return imageRepository.findImagesByBookIdJoinFetch(bookId)
+                .stream()
+                .map(imageEntity -> Image.builder()
+                        .imageId(imageEntity.getId())
+                        .storeFilename(imageEntity.getStoreFilename())
+                        .originalFilename(imageEntity.getUploadFilename())
+                        .gcsUrl(imageEntity.getGcsUrl())
+                        .bookId(imageEntity.getBookEntity().getId())
+                        .build())
+                .collect(Collectors.toList());
+
     }
 
     @Override
