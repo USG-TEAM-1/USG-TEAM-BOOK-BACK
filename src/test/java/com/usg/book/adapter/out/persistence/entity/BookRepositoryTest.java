@@ -1,14 +1,13 @@
 package com.usg.book.adapter.out.persistence.entity;
 
+import com.usg.book.IntegrationExternalApiMockingTestSupporter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
-public class BookRepositoryTest {
+public class BookRepositoryTest extends IntegrationExternalApiMockingTestSupporter {
 
     @Autowired
     private BookRepository bookRepository;

@@ -1,17 +1,16 @@
 package com.usg.book.adapter.out.persistence.entity;
 
-import org.assertj.core.api.Assertions;
+import com.usg.book.IntegrationExternalApiMockingTestSupporter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
-public class ImageRepositoryTest {
+public class ImageRepositoryTest extends IntegrationExternalApiMockingTestSupporter {
 
     @Autowired
     private ImageRepository imageRepository;
@@ -19,7 +18,7 @@ public class ImageRepositoryTest {
     private BookRepository bookRepository;
 
     @Test
-    @DisplayName("이미지 저장 테스트")
+    @DisplayName("책 엔티티를 저장한 뒤 이미지 엔티티를 저장한다.")
     void saveTest() {
         // given
         String email = "email";
@@ -41,6 +40,11 @@ public class ImageRepositoryTest {
 
         // then
         assertThat(savedImageEntity).isEqualTo(imageEntity);
+        assertThat(savedImageEntity.getId()).isEqualTo(imageEntity.getId());
+        assertThat(savedImageEntity.getStoreFilename()).isEqualTo(imageEntity.getStoreFilename());
+        assertThat(savedImageEntity.getUploadFilename()).isEqualTo(imageEntity.getUploadFilename());
+        assertThat(savedImageEntity.getGcsUrl()).isEqualTo(imageEntity.getGcsUrl());
+        assertThat(savedImageEntity.getBookEntity()).isEqualTo(imageEntity.getBookEntity());
     }
 
     private BookEntity createBookEntity(String email,
@@ -74,7 +78,7 @@ public class ImageRepositoryTest {
     }
 
     @Test
-    @DisplayName("책 PK 로 이미지 조회 테스트")
+    @DisplayName("책 PK 로 이미지 엔티티를 조회한다.")
     void findByBookIdTest() {
         // given
         String email = "email";
@@ -95,6 +99,10 @@ public class ImageRepositoryTest {
         List<ImageEntity> findImageEntities = imageRepository.findByBookId(savedBookEntity.getId());
 
         // then
-        Assertions.assertThat(findImageEntities.get(0)).isEqualTo(savedImageEntity);
+        assertThat(findImageEntities).hasSize(1)
+                .extracting("gcsUrl", "id")
+                .containsExactlyInAnyOrder(
+                        tuple("gcsUrl", savedImageEntity.getId())
+                );
     }
 }
