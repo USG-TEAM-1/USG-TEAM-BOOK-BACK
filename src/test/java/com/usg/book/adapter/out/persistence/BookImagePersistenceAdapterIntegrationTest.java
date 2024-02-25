@@ -13,6 +13,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -81,6 +82,21 @@ public class BookImagePersistenceAdapterIntegrationTest extends IntegrationExter
         assertThat(imageEntities).hasSize(3)
                 .extracting("bookEntity")
                 .contains(savedBookEntity, savedBookEntity, savedBookEntity);
+    }
+
+    @Test
+    @DisplayName("이미지 PK 로 이미지 엔티티를 삭제한다.")
+    void deleteImageTest() {
+        // given
+        BookEntity savedBookEntity = createBookEntity();
+        ImageEntity imageEntity = createImageEntity(savedBookEntity, "gcsUrl");
+
+        // when
+        bookImagePersistenceAdapter.deleteImage(imageEntity.getId());
+
+        // then
+        Optional<ImageEntity> findImageOptional = imageRepository.findById(imageEntity.getId());
+        assertThat(findImageOptional).isEmpty();
     }
 
     private BookEntity createBookEntity() {
