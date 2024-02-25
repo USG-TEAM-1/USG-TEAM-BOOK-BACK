@@ -11,13 +11,15 @@ import org.springframework.web.multipart.MultipartFile;
 public class Image {
 
     private MultipartFile image;
+    private Long imageId;
     private Long bookId;
     private String gcsUrl;
     private String storeFilename;
 
     @Builder
-    public Image(MultipartFile image, Long bookId, String gcsUrl, String storeFilename) {
+    public Image(MultipartFile image, Long imageId, Long bookId, String gcsUrl, String storeFilename) {
         this.image = image;
+        this.imageId = imageId;
         this.bookId = bookId;
         this.gcsUrl = gcsUrl;
         this.storeFilename = storeFilename;
