@@ -1,6 +1,7 @@
 package com.usg.book.adapter.out.persistence;
 
 import com.usg.book.adapter.out.persistence.entity.BookEntity;
+import com.usg.book.adapter.out.persistence.entity.BookRepository;
 import com.usg.book.adapter.out.persistence.entity.ImageEntity;
 import com.usg.book.adapter.out.persistence.entity.ImageRepository;
 import com.usg.book.application.port.out.BookImagePersistencePort;
@@ -8,7 +9,6 @@ import com.usg.book.domain.Image;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 import java.util.ArrayList;
@@ -19,19 +19,21 @@ import java.util.ArrayList;
 public class BookImagePersistenceAdapter implements BookImagePersistencePort {
 
     private final ImageRepository imageRepository;
+    private final BookRepository bookRepository;
 
     @Override
-    public Long saveImage(Image image, BookEntity book) {
+    public Long saveImage(Image image, Long bookId) {
 
-        MultipartFile multipartFile = image.getImage();
-        String originalFilename = multipartFile.getOriginalFilename();
+        BookEntity findBookEntity = bookRepository.findById(bookId).orElseThrow(
+                () -> new IllegalArgumentException("Book Not Exist")
+        );
 
         ImageEntity imageEntity = ImageEntity
                 .builder()
-                .uploadFilename(originalFilename)
+                .uploadFilename(image.getOriginalFilename())
                 .storeFilename(image.getStoreFilename())
                 .gcsUrl(image.getGcsUrl())
-                .bookEntity(book)
+                .bookEntity(findBookEntity)
                 .build();
 
         ImageEntity savedImageEntity = imageRepository.save(imageEntity);
