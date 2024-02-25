@@ -62,6 +62,22 @@ public class BookPersistenceAdapterIntegrationTest extends IntegrationExternalAp
                 .hasMessage("Book Not Exist");
     }
 
+    @Test
+    @DisplayName("책 PK 를 이용해 책 엔티티를 삭제한다.")
+    void deleteByIdTest() {
+        // given
+        Book book = createBook();
+        Long savedBookId = bookPersistenceAdapter.registerBook(book);
+
+        // when
+        bookPersistenceAdapter.deleteById(savedBookId);
+
+        // then
+        assertThatThrownBy(() -> bookPersistenceAdapter.findBookById(savedBookId))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Book Not Exist");
+    }
+
     private Book createBook() {
         return Book.builder()
                 .email("email")
