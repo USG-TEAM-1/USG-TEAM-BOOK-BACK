@@ -12,7 +12,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 @Component
@@ -58,14 +57,8 @@ public class BookImagePersistenceAdapter implements BookImagePersistencePort {
     }
 
     @Override
-    public void deleteImage(ImageEntity imageEntity) {
-        
-        imageRepository.deleteById(imageEntity.getId());
-    }
-
-    @Override
-    public List<ImageEntity> findByBookEntity(BookEntity book){
-        return imageRepository.findByBookEntity(book);
+    public void deleteImage(Long imageId) {
+        imageRepository.deleteById(imageId);
     }
 }
 

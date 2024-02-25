@@ -86,7 +86,7 @@ public class BookImageService implements BookImageUploadUseCase, BookImageDelete
                     bookImageGcsPort.deleteImage(gcsImageUrl);
                 }
 
-                bookImagePersistencePort.deleteImage(imageEntity);
+                bookImagePersistencePort.deleteImage(imageEntity.getId());
 
             }
         }
@@ -112,12 +112,11 @@ public class BookImageService implements BookImageUploadUseCase, BookImageDelete
                     bookImageGcsPort.deleteImage(gcsImageUrl);
                 }
 
-                bookImagePersistencePort.deleteImage(imageEntity);
+                bookImagePersistencePort.deleteImage(imageEntity.getId());
 
             }
         }
 
-        
         BookEntity findBookEntity = bookPersistencePort.findById(bookId);
 
         // 새로운 이미지를 업로드하고 저장
