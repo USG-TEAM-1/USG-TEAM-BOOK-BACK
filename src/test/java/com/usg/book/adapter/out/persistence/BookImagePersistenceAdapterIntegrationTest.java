@@ -98,12 +98,12 @@ public class BookImagePersistenceAdapterIntegrationTest extends IntegrationExter
         ImageEntity imageEntity3 = createImageEntity(savedBookEntity, "gcsUrl");
 
         // when
-        List<ImageEntity> imageEntities = bookImagePersistenceAdapter.getImagesByBookId(savedBookEntity.getId());
+        List<Image> findImages = bookImagePersistenceAdapter.getImagesByBookId(savedBookEntity.getId());
 
         // then
-        assertThat(imageEntities).hasSize(3)
-                .extracting("bookEntity")
-                .contains(savedBookEntity, savedBookEntity, savedBookEntity);
+        assertThat(findImages).hasSize(3)
+                .extracting("imageId")
+                .contains(imageEntity1.getId(), imageEntity2.getId(), imageEntity3.getId());
     }
 
     @Test
