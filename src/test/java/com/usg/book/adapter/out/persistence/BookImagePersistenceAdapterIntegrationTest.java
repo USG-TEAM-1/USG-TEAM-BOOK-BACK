@@ -36,17 +36,17 @@ public class BookImagePersistenceAdapterIntegrationTest extends IntegrationExter
         MockMultipartFile imageFile
                 = new MockMultipartFile("image", "image.jpg", "image/jpeg", new byte[10]);
         Image image = Image.builder()
-                .bookId(savedBookEntity.getId())
                 .storeFilename("storeFilename")
+                .originalFilename("originalFilename")
                 .gcsUrl("gcsUrl")
                 .image(imageFile)
                 .build();
 
         // when
-        Long savedBookImageId = bookImagePersistenceAdapter.saveImage(image, savedBookEntity);
+        Long savedBookImageId = bookImagePersistenceAdapter.saveImage(image, savedBookEntity.getId());
 
         // then
-        assertThat(savedBookImageId).isNotNull();
+        assertThat(savedBookImageId).isEqualTo(savedBookEntity.getId());
     }
 
     @Test
