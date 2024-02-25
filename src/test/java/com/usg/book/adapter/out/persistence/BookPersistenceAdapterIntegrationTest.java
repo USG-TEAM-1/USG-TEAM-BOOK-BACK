@@ -4,10 +4,14 @@ import com.usg.book.IntegrationExternalApiMockingTestSupporter;
 import com.usg.book.adapter.out.persistence.entity.BookEntity;
 import com.usg.book.adapter.out.persistence.entity.BookRepository;
 import com.usg.book.domain.Book;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -18,6 +22,8 @@ public class BookPersistenceAdapterIntegrationTest extends IntegrationExternalAp
     private BookPersistenceAdapter bookPersistenceAdapter;
     @Autowired
     private BookRepository bookRepository;
+    @PersistenceContext
+    private EntityManager em;
 
     @Test
     @DisplayName("어뎁터를 이용해 책을 DB에 저장한다.")
@@ -73,9 +79,28 @@ public class BookPersistenceAdapterIntegrationTest extends IntegrationExternalAp
         bookPersistenceAdapter.deleteById(savedBookId);
 
         // then
-        assertThatThrownBy(() -> bookPersistenceAdapter.findBookById(savedBookId))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Book Not Exist");
+        Optional<BookEntity> findBookEntityOptional = bookRepository.findById(savedBookId);
+        assertThat(findBookEntityOptional).isEmpty();
+    }
+
+    @Test
+    @DisplayName("책 PK 를 이용해 책 엔티티를 update 한다.")
+    void updateBookTest() {
+        // given
+        Book book = createBook();
+        Long savedBookId = bookPersistenceAdapter.registerBook(book);
+        String bookPostName = "updateBookPostName";
+        String bookComment = "updateBookComment";
+        int bookPrice = 25000;
+        em.flush();
+        em.clear();
+
+        // when
+        bookPersistenceAdapter.updateBook(savedBookId, bookPostName, bookComment, bookPrice);
+
+        // then
+        BookEntity findBook = bookRepository.findById(savedBookId).get();
+        assertThat(findBook.getBookPrice()).isEqualTo(bookPrice);
     }
 
     private Book createBook() {
