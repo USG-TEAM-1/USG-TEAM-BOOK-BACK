@@ -11,6 +11,6 @@ public interface BookImagePersistencePort {
     Long saveImage(Image image, BookEntity book);
     List<String> getImageUrls(Long bookId);
     List<ImageEntity> getImagesByBookId(Long bookId); 
-    void deleteImage(ImageEntity imageEntity);
+    void deleteImage(Long imageId);
     List<ImageEntity> findByBookEntity(BookEntity book);
 }
