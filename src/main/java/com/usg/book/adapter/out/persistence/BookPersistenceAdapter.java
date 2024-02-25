@@ -45,6 +45,12 @@ public class BookPersistenceAdapter implements BookPersistencePort {
         return bookRepository.findAll(pageable);
     }
 
+    @Override
+    public void updateBook(Long bookId, String bookPostName, String bookComment, Integer bookPrice) {
+
+        bookRepository.updateBookByBookId(bookId, bookPostName, bookComment, bookPrice);
+    }
+
     private BookEntity bookToBookIdNotContainEntity(Book book) {
         return BookEntity
                 .builder()
