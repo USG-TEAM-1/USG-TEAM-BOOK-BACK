@@ -16,6 +16,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 
 public class BookImageServiceTest extends IntegrationExternalApiMockingTestSupporter {
@@ -74,6 +76,24 @@ public class BookImageServiceTest extends IntegrationExternalApiMockingTestSuppo
         assertThatThrownBy(() -> bookImageService.saveImages(imageLists, savedBookId))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Image Capacity Exceeded");
+    }
+
+    @Test
+    @DisplayName("책 PK 를 이용해 연관된 이미지들을 삭제한다.")
+    void deleteImagesTest() {
+        // given
+        Book book = createBook();
+        Long savedBookId = bookPersistencePort.registerBook(book);
+        List<MultipartFile> imageLists = createImageLists(1);
+
+        // stub
+        doNothing().when(imageGcsAdapter).deleteImage(anyString());
+
+        // when
+        bookImageService.deleteImages(savedBookId);
+
+        // then
+        assertThat(bookImagePersistencePort.getImagesByBookId(savedBookId)).isEmpty();
     }
 
     private Book createBook() {
