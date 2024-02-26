@@ -83,6 +83,20 @@ public class BookServiceTest extends IntegrationExternalApiMockingTestSupporter 
         assertThat(findBook.getBookPostName()).isEqualTo(updateCommend.getBookPostName());
     }
 
+    @Test
+    @DisplayName("책을 등록한 이메일과 요청한 이메일이 다르면 예외가 발생한다.")
+    void updateBookFailTest() {
+        // given
+        Book book = createBook();
+        Long savedBookId = bookPersistencePort.registerBook(book);
+        BookUpdateCommend updateCommend = createBookUpdateCommend(savedBookId, book.getEmail() + "X");
+
+        // when // then
+        assertThatThrownBy(() -> bookService.updateBook(updateCommend))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("You are not authorized to update this book.");
+    }
+
     private BookRegisterCommend bookRegisterCommend() {
         return BookRegisterCommend.builder()
                 .email("email")
