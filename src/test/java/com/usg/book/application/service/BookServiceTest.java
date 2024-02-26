@@ -2,6 +2,7 @@ package com.usg.book.application.service;
 
 import com.usg.book.IntegrationExternalApiMockingTestSupporter;
 import com.usg.book.application.port.in.BookRegisterCommend;
+import com.usg.book.application.port.in.BookUpdateCommend;
 import com.usg.book.application.port.in.GetBookServiceResponse;
 import com.usg.book.application.port.out.BookImagePersistencePort;
 import com.usg.book.application.port.out.BookPersistencePort;
@@ -65,6 +66,23 @@ public class BookServiceTest extends IntegrationExternalApiMockingTestSupporter 
         assertThat(response.getImageUrls()).hasSize(1);
     }
 
+    @Test
+    @DisplayName("Commend 객체를 입력받아 책을 수정한다.")
+    void updateBookTest() {
+        // given
+        Book book = createBook();
+        Long savedBookId = bookPersistencePort.registerBook(book);
+        BookUpdateCommend updateCommend = createBookUpdateCommend(savedBookId, book.getEmail());
+
+        // when
+        bookService.updateBook(updateCommend);
+
+        // then
+        Book findBook = bookPersistencePort.findBookById(savedBookId);
+        assertThat(findBook.getBookId()).isEqualTo(savedBookId);
+        assertThat(findBook.getBookPostName()).isEqualTo(updateCommend.getBookPostName());
+    }
+
     private BookRegisterCommend bookRegisterCommend() {
         return BookRegisterCommend.builder()
                 .email("email")
@@ -101,6 +119,16 @@ public class BookServiceTest extends IntegrationExternalApiMockingTestSupporter 
                 .originalFilename("originalFilename")
                 .gcsUrl("gcsUrl")
                 .image(imageFile)
+                .build();
+    }
+
+    private BookUpdateCommend createBookUpdateCommend(Long bookId, String email) {
+        return BookUpdateCommend.builder()
+                .bookId(bookId)
+                .email(email)
+                .bookPostName("updateBookPostName")
+                .bookComment("updateBookCommend")
+                .bookPrice(20000)
                 .build();
     }
 }
