@@ -2,14 +2,14 @@ package com.usg.book;
 
 import com.usg.book.adapter.out.api.BookISBNCheckAdapter;
 import com.usg.book.adapter.out.api.ImageGcsAdapter;
-import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 @SpringBootTest
 public class IntegrationExternalApiMockingTestSupporter {
 
-    @Mock
+    @MockBean
     protected ImageGcsAdapter imageGcsAdapter;
-    @Mock
+    @MockBean
     protected BookISBNCheckAdapter bookISBNCheckAdapter;
 }
