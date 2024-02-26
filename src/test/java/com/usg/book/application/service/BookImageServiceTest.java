@@ -96,6 +96,28 @@ public class BookImageServiceTest extends IntegrationExternalApiMockingTestSuppo
         assertThat(bookImagePersistencePort.getImagesByBookId(savedBookId)).isEmpty();
     }
 
+    @Test
+    @DisplayName("이미지 파일과 책 PK 를 이용해 이미지를 수정한다.")
+    void updateImagesTest() {
+        // given
+        Book book = createBook();
+        Long savedBookId = bookPersistencePort.registerBook(book);
+        List<MultipartFile> imageList = createImageLists(1);
+        bookImageService.saveImages(imageList, savedBookId);
+        List<MultipartFile> updateImageList = createImageLists(10);
+
+        // stub
+        doReturn("gcsUrl").when(imageGcsAdapter).uploadImage(any(Image.class));
+        doNothing().when(imageGcsAdapter).deleteImage(anyString());
+
+        // when
+        bookImageService.updateImages(updateImageList, savedBookId);
+
+        // then
+        List<Image> findImages = bookImagePersistencePort.getImagesByBookId(savedBookId);
+        assertThat(findImages).hasSize(10);
+    }
+
     private Book createBook() {
         return Book.builder()
                 .email("email")
