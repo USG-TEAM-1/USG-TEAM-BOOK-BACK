@@ -1,6 +1,7 @@
 package com.usg.book.application.service;
 
 import com.usg.book.IntegrationExternalApiMockingTestSupporter;
+import com.usg.book.application.port.in.BookDeleteCommend;
 import com.usg.book.application.port.in.BookRegisterCommend;
 import com.usg.book.application.port.in.BookUpdateCommend;
 import com.usg.book.application.port.in.GetBookServiceResponse;
@@ -97,6 +98,23 @@ public class BookServiceTest extends IntegrationExternalApiMockingTestSupporter 
                 .hasMessage("You are not authorized to update this book.");
     }
 
+    @Test
+    @DisplayName("Commend 객체를 입력받아 책을 삭제한다.")
+    void deleteBookTest() {
+        // given
+        Book book = createBook();
+        Long savedBookId = bookPersistencePort.registerBook(book);
+        BookDeleteCommend deleteCommend = createBookDeleteCommend(savedBookId, book.getEmail());
+
+        // when
+        bookService.deleteBook(deleteCommend);
+
+        // then
+        assertThatThrownBy(() -> bookPersistencePort.findBookById(savedBookId))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Book Not Exist");
+    }
+
     private BookRegisterCommend bookRegisterCommend() {
         return BookRegisterCommend.builder()
                 .email("email")
@@ -143,6 +161,13 @@ public class BookServiceTest extends IntegrationExternalApiMockingTestSupporter 
                 .bookPostName("updateBookPostName")
                 .bookComment("updateBookCommend")
                 .bookPrice(20000)
+                .build();
+    }
+
+    private BookDeleteCommend createBookDeleteCommend(Long bookId, String email) {
+        return BookDeleteCommend.builder()
+                .bookId(bookId)
+                .email(email)
                 .build();
     }
 }
