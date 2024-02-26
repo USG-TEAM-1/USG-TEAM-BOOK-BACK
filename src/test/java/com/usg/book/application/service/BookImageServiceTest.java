@@ -33,7 +33,7 @@ public class BookImageServiceTest extends IntegrationExternalApiMockingTestSuppo
         // given
         Book book = createBook();
         Long savedBookId = bookPersistencePort.registerBook(book);
-        List<MultipartFile> imageLists = createImageLists(2);
+        List<MultipartFile> imageLists = createImageLists(10);
 
         // stub
         doReturn("gcsUrl").when(imageGcsAdapter).uploadImage(any(Image.class));
@@ -43,12 +43,37 @@ public class BookImageServiceTest extends IntegrationExternalApiMockingTestSuppo
 
         // then
         List<Image> findImages = bookImagePersistencePort.getImagesByBookId(savedBookId);
-        assertThat(findImages).hasSize(2)
+        assertThat(findImages).hasSize(10)
                 .extracting("gcsUrl", "bookId")
                 .containsExactlyInAnyOrder(
                         tuple("gcsUrl", savedBookId),
+                        tuple("gcsUrl", savedBookId),
+                        tuple("gcsUrl", savedBookId),
+                        tuple("gcsUrl", savedBookId),
+                        tuple("gcsUrl", savedBookId),
+                        tuple("gcsUrl", savedBookId),
+                        tuple("gcsUrl", savedBookId),
+                        tuple("gcsUrl", savedBookId),
+                        tuple("gcsUrl", savedBookId),
                         tuple("gcsUrl", savedBookId)
                 );
+    }
+
+    @Test
+    @DisplayName("이미지 파일 개수가 10개 보다 많으면 예외가 발생한다.")
+    void saveImageFailTest() {
+        // given
+        Book book = createBook();
+        Long savedBookId = bookPersistencePort.registerBook(book);
+        List<MultipartFile> imageLists = createImageLists(11);
+
+        // stub
+        doReturn("gcsUrl").when(imageGcsAdapter).uploadImage(any(Image.class));
+
+        // when // then
+        assertThatThrownBy(() -> bookImageService.saveImages(imageLists, savedBookId))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Image Capacity Exceeded");
     }
 
     private Book createBook() {
