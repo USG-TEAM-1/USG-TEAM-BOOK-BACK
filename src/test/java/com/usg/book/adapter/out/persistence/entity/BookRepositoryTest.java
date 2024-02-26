@@ -1,31 +1,28 @@
 package com.usg.book.adapter.out.persistence.entity;
 
 import com.usg.book.IntegrationExternalApiMockingTestSupporter;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Transactional
 public class BookRepositoryTest extends IntegrationExternalApiMockingTestSupporter {
 
     @Autowired
     private BookRepository bookRepository;
+    @PersistenceContext
+    private EntityManager em;
 
     @Test
     @DisplayName("책 엔티티를 데이터베이스에 저장한다.")
     void saveTest() {
         // given
-        String email = "email";
-        String bookName = "bookName";
-        Integer bookRealPrice = 100;
-        String author = "author";
-        String publisher = "publisher";
-        String bookPostName = "bookPostName";
-        String bookComment = "bookComment";
-        Integer bookPrice = 10;
-        String isbn = "isbn";
-        BookEntity bookEntity = createBookEntity(email, bookName, bookRealPrice, author, publisher, bookPostName, bookComment, bookPrice, isbn);
+        BookEntity bookEntity = createBookEntity();
 
         // when
         BookEntity savedBook = bookRepository.save(bookEntity);
@@ -44,26 +41,42 @@ public class BookRepositoryTest extends IntegrationExternalApiMockingTestSupport
         assertThat(savedBook.getIsbn()).isEqualTo(bookEntity.getIsbn());
     }
 
-    private BookEntity createBookEntity(String email,
-                                        String bookName,
-                                        Integer bookRealPrice,
-                                        String author,
-                                        String publisher,
-                                        String bookComment,
-                                        String bookPostName,
-                                        Integer bookPrice,
-                                        String isbn) {
+    @Test
+    @DisplayName("책 PK 로 게시글 제목, 상세내용, 가격을 수정한다.")
+    void updateBookByBookIdTest() {
+        // given
+        String bookPostName = "updateBookPostName";
+        String bookComment = "updateBookComment";
+        int bookPrice = 25000;
+        BookEntity bookEntity = createBookEntity();
+        BookEntity savedBook = bookRepository.save(bookEntity);
+
+        em.flush();
+        em.clear();
+
+        // when
+        int updateBookCount = bookRepository.updateBookByBookId(savedBook.getId(), bookPostName, bookComment, bookPrice);
+
+        // then
+        assertThat(updateBookCount).isEqualTo(1);
+        BookEntity findBookEntity = bookRepository.findById(savedBook.getId()).get();
+        assertThat(findBookEntity.getBookPostName()).isEqualTo(bookPostName);
+        assertThat(findBookEntity.getBookComment()).isEqualTo(bookComment);
+        assertThat(findBookEntity.getBookPrice()).isEqualTo(bookPrice);
+    }
+
+    private BookEntity createBookEntity() {
         return BookEntity
                 .builder()
-                .email(email)
-                .bookName(bookName)
-                .bookRealPrice(bookRealPrice)
-                .author(author)
-                .publisher(publisher)
-                .bookPostName(bookPostName)
-                .bookComment(bookComment)
-                .bookPrice(bookPrice)
-                .isbn(isbn)
+                .email("email")
+                .bookName("bookName")
+                .bookRealPrice(30000)
+                .author("author")
+                .publisher("publisher")
+                .bookPostName("bookPostName")
+                .bookComment("bookComment")
+                .bookPrice(28000)
+                .isbn("isbn")
                 .build();
     }
 }

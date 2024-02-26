@@ -36,17 +36,39 @@ public class BookImagePersistenceAdapterIntegrationTest extends IntegrationExter
         MockMultipartFile imageFile
                 = new MockMultipartFile("image", "image.jpg", "image/jpeg", new byte[10]);
         Image image = Image.builder()
-                .bookId(savedBookEntity.getId())
                 .storeFilename("storeFilename")
+                .originalFilename("originalFilename")
                 .gcsUrl("gcsUrl")
                 .image(imageFile)
                 .build();
 
         // when
-        Long savedBookImageId = bookImagePersistenceAdapter.saveImage(image, savedBookEntity);
+        Long savedBookImageId = bookImagePersistenceAdapter.saveImage(image, savedBookEntity.getId());
 
         // then
         assertThat(savedBookImageId).isNotNull();
+        assertThat(imageRepository.findById(savedBookImageId)).isNotEmpty();
+    }
+
+    @Test
+    @DisplayName("책 엔티티가 없을 시 이미지 저장을 실패한다.")
+    void saveImageFailTest() {
+        // given
+        BookEntity bookEntity = BookEntity.builder().build();
+        BookEntity savedBookEntity = bookRepository.save(bookEntity);
+        MockMultipartFile imageFile
+                = new MockMultipartFile("image", "image.jpg", "image/jpeg", new byte[10]);
+        Image image = Image.builder()
+                .storeFilename("storeFilename")
+                .originalFilename("originalFilename")
+                .gcsUrl("gcsUrl")
+                .image(imageFile)
+                .build();
+
+        // when // then
+        assertThatThrownBy(() -> bookImagePersistenceAdapter.saveImage(image, (savedBookEntity.getId() + 1)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Book Not Exist");
     }
 
     @Test
@@ -76,12 +98,12 @@ public class BookImagePersistenceAdapterIntegrationTest extends IntegrationExter
         ImageEntity imageEntity3 = createImageEntity(savedBookEntity, "gcsUrl");
 
         // when
-        List<ImageEntity> imageEntities = bookImagePersistenceAdapter.getImagesByBookId(savedBookEntity.getId());
+        List<Image> findImages = bookImagePersistenceAdapter.getImagesByBookId(savedBookEntity.getId());
 
         // then
-        assertThat(imageEntities).hasSize(3)
-                .extracting("bookEntity")
-                .contains(savedBookEntity, savedBookEntity, savedBookEntity);
+        assertThat(findImages).hasSize(3)
+                .extracting("imageId")
+                .contains(imageEntity1.getId(), imageEntity2.getId(), imageEntity3.getId());
     }
 
     @Test

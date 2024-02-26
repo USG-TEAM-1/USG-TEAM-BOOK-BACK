@@ -47,6 +47,67 @@ public class ImageRepositoryTest extends IntegrationExternalApiMockingTestSuppor
         assertThat(savedImageEntity.getBookEntity()).isEqualTo(imageEntity.getBookEntity());
     }
 
+    @Test
+    @DisplayName("이미지 PK 로 이미지 엔티티를 조회한다.")
+    void findByBookIdTest() {
+        // given
+        String email = "email";
+        String bookName = "bookName";
+        String bookComment = "bookComment";
+        String bookPostName = "bookPostName";
+        Integer bookPrice = 10;
+        String isbn = "isbn";
+        BookEntity bookEntity = createBookEntity(email, bookName, bookComment, bookPostName, bookPrice, isbn);
+        BookEntity savedBookEntity = bookRepository.save(bookEntity);
+        String uploadFilename = "uploadFilename";
+        String storeFilename = "storeFilename";
+        String gcsUrl = "gcsUrl";
+        ImageEntity imageEntity = createImageEntity(uploadFilename, storeFilename, gcsUrl, savedBookEntity);
+        ImageEntity savedImageEntity = imageRepository.save(imageEntity);
+
+        // when
+        List<ImageEntity> findImageEntities = imageRepository.findByBookId(savedBookEntity.getId());
+
+        // then
+        assertThat(findImageEntities).hasSize(1)
+                .extracting("gcsUrl", "id")
+                .containsExactlyInAnyOrder(
+                        tuple("gcsUrl", savedImageEntity.getId())
+                );
+    }
+
+    @Test
+    @DisplayName("책 PK로 이미지 엔티티를 조회한다.")
+    void findImagesByBookIdJoinFetchTest() {
+        // given
+        String email = "email";
+        String bookName = "bookName";
+        String bookComment = "bookComment";
+        String bookPostName = "bookPostName";
+        Integer bookPrice = 10;
+        String isbn = "isbn";
+        BookEntity bookEntity = createBookEntity(email, bookName, bookComment, bookPostName, bookPrice, isbn);
+        BookEntity savedBookEntity = bookRepository.save(bookEntity);
+        String uploadFilename = "uploadFilename";
+        String storeFilename = "storeFilename";
+        String gcsUrl = "gcsUrl";
+        ImageEntity imageEntity1 = createImageEntity(uploadFilename, storeFilename, gcsUrl, savedBookEntity);
+        ImageEntity savedImageEntity1 = imageRepository.save(imageEntity1);
+        ImageEntity imageEntity2 = createImageEntity(uploadFilename, storeFilename, gcsUrl, savedBookEntity);
+        ImageEntity savedImageEntity2 = imageRepository.save(imageEntity2);
+
+        // when
+        List<ImageEntity> findImageEntities = imageRepository.findImagesByBookIdJoinFetch(savedBookEntity.getId());
+
+        // then
+        assertThat(findImageEntities).hasSize(2)
+                .extracting("gcsUrl", "id")
+                .containsExactlyInAnyOrder(
+                        tuple("gcsUrl", savedImageEntity1.getId()),
+                        tuple("gcsUrl", savedImageEntity2.getId())
+                );
+    }
+
     private BookEntity createBookEntity(String email,
                                         String bookName,
                                         String bookComment,
@@ -75,34 +136,5 @@ public class ImageRepositoryTest extends IntegrationExternalApiMockingTestSuppor
                 .gcsUrl(gcsUrl)
                 .bookEntity(bookEntity)
                 .build();
-    }
-
-    @Test
-    @DisplayName("책 PK 로 이미지 엔티티를 조회한다.")
-    void findByBookIdTest() {
-        // given
-        String email = "email";
-        String bookName = "bookName";
-        String bookComment = "bookComment";
-        String bookPostName = "bookPostName";
-        Integer bookPrice = 10;
-        String isbn = "isbn";
-        BookEntity bookEntity = createBookEntity(email, bookName, bookComment, bookPostName, bookPrice, isbn);
-        BookEntity savedBookEntity = bookRepository.save(bookEntity);
-        String uploadFilename = "uploadFilename";
-        String storeFilename = "storeFilename";
-        String gcsUrl = "gcsUrl";
-        ImageEntity imageEntity = createImageEntity(uploadFilename, storeFilename, gcsUrl, savedBookEntity);
-        ImageEntity savedImageEntity = imageRepository.save(imageEntity);
-
-        // when
-        List<ImageEntity> findImageEntities = imageRepository.findByBookId(savedBookEntity.getId());
-
-        // then
-        assertThat(findImageEntities).hasSize(1)
-                .extracting("gcsUrl", "id")
-                .containsExactlyInAnyOrder(
-                        tuple("gcsUrl", savedImageEntity.getId())
-                );
     }
 }

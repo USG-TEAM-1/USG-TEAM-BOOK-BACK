@@ -1,77 +1,187 @@
 package com.usg.book.application.service;
 
+import com.usg.book.IntegrationExternalApiMockingTestSupporter;
+import com.usg.book.application.port.in.BookDeleteCommend;
 import com.usg.book.application.port.in.BookRegisterCommend;
-import com.usg.book.application.port.out.BookISBNCheckPort;
+import com.usg.book.application.port.in.BookUpdateCommend;
+import com.usg.book.application.port.in.GetBookServiceResponse;
+import com.usg.book.application.port.out.BookImagePersistencePort;
 import com.usg.book.application.port.out.BookPersistencePort;
+import com.usg.book.application.port.out.MemberPersistencePort;
 import com.usg.book.domain.Book;
-import org.assertj.core.api.Assertions;
+import com.usg.book.domain.Image;
+import com.usg.book.domain.Member;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mock.web.MockMultipartFile;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
-public class BookServiceTest {
+public class BookServiceTest extends IntegrationExternalApiMockingTestSupporter {
 
-    @InjectMocks
+    @Autowired
     private BookService bookService;
-    @Mock
+    @Autowired
     private BookPersistencePort bookPersistencePort;
-    @Mock
-    private BookISBNCheckPort bookISBNCheckPort;
+    @Autowired
+    private MemberPersistencePort memberPersistencePort;
+    @Autowired
+    private BookImagePersistencePort bookImagePersistencePort;
 
     @Test
-    @DisplayName("책 등록 서비스 테스트")
+    @DisplayName("Commend 객체를 입력받아 책을 등록한다.")
     void registerBookTest() {
         // given
-        String email = "email";
-        String bookName = "bookName";
-        Integer bookRealPrice = 100;
-        String author = "author";
-        String publisher = "publisher";
-        String bookPostName = "bookPostName";
-        String bookComment = "bookComment";
-        Integer bookPrice = 10;
-        String isbn = "isbn";
-        BookRegisterCommend bookRegisterCommend = createBookRegisterCommend(email, bookName, bookRealPrice, author, publisher, bookComment, bookPostName, bookPrice, isbn);
+        BookRegisterCommend commend = bookRegisterCommend();
 
         // stub
-        doNothing().when(bookISBNCheckPort).bookIsbnCheck(isbn, bookRealPrice);
-        when(bookPersistencePort.registerBook(any(Book.class))).thenReturn(1L);
+        doNothing().when(bookISBNCheckAdapter).bookIsbnCheck(anyString(), anyInt());
 
         // when
-        Long savedBookId = bookService.registerBook(bookRegisterCommend);
+        Long savedBookId = bookService.registerBook(commend);
 
         // then
-        Assertions.assertThat(savedBookId).isEqualTo(1L);
+        Book findBook = bookPersistencePort.findBookById(savedBookId);
+        assertThat(findBook.getBookId()).isEqualTo(savedBookId);
     }
 
-    private BookRegisterCommend createBookRegisterCommend(String email,
-                                                          String bookName,
-                                                          Integer bookRealPrice,
-                                                          String author,
-                                                          String publisher,
-                                                          String bookComment,
-                                                          String bookPostName,
-                                                          Integer bookPrice,
-                                                          String isbn) {
-        return BookRegisterCommend
-                .builder()
+    @Test
+    @DisplayName("책 PK 를 이용해 책의 상세 정보를 조회한다.")
+    void getBookTest() {
+        // given
+        Book book = createBook();
+        Long savedBookId = bookPersistencePort.registerBook(book);
+        Image image = createImage();
+        bookImagePersistencePort.saveImage(image, savedBookId);
+        Member member = Member.builder().email("email").nickname("nickname").build();
+        memberPersistencePort.saveMember(member);
+
+        // when
+        GetBookServiceResponse response = bookService.getBook(savedBookId);
+
+        // then
+        assertThat(response.getNickname()).isEqualTo(member.getNickname());
+        assertThat(response.getImageUrls()).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("Commend 객체를 입력받아 책을 수정한다.")
+    void updateBookTest() {
+        // given
+        Book book = createBook();
+        Long savedBookId = bookPersistencePort.registerBook(book);
+        BookUpdateCommend updateCommend = createBookUpdateCommend(savedBookId, book.getEmail());
+
+        // when
+        bookService.updateBook(updateCommend);
+
+        // then
+        Book findBook = bookPersistencePort.findBookById(savedBookId);
+        assertThat(findBook.getBookId()).isEqualTo(savedBookId);
+        assertThat(findBook.getBookPostName()).isEqualTo(updateCommend.getBookPostName());
+    }
+
+    @Test
+    @DisplayName("책을 등록한 이메일과 요청한 이메일이 다르면 예외가 발생한다.")
+    void updateBookFailTest() {
+        // given
+        Book book = createBook();
+        Long savedBookId = bookPersistencePort.registerBook(book);
+        BookUpdateCommend updateCommend = createBookUpdateCommend(savedBookId, book.getEmail() + "X");
+
+        // when // then
+        assertThatThrownBy(() -> bookService.updateBook(updateCommend))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("You are not authorized to update this book.");
+    }
+
+    @Test
+    @DisplayName("Commend 객체를 입력받아 책을 삭제한다.")
+    void deleteBookTest() {
+        // given
+        Book book = createBook();
+        Long savedBookId = bookPersistencePort.registerBook(book);
+        BookDeleteCommend deleteCommend = createBookDeleteCommend(savedBookId, book.getEmail());
+
+        // when
+        bookService.deleteBook(deleteCommend);
+
+        // then
+        assertThatThrownBy(() -> bookPersistencePort.findBookById(savedBookId))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Book Not Exist");
+    }
+
+    @Test
+    @DisplayName("책을 등록한 이메일과 요청한 이메일이 다르면 예외가 발생한다.")
+    void deleteBookFailTest() {
+        // given
+        Book book = createBook();
+        Long savedBookId = bookPersistencePort.registerBook(book);
+        BookDeleteCommend deleteCommend = createBookDeleteCommend(savedBookId, book.getEmail() + "X");
+
+        // when // then
+        assertThatThrownBy(() -> bookService.deleteBook(deleteCommend))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("You are not authorized to update this book.");
+    }
+
+    private BookRegisterCommend bookRegisterCommend() {
+        return BookRegisterCommend.builder()
+                .email("email")
+                .bookName("bookName")
+                .bookRealPrice(30000)
+                .author("author")
+                .publisher("publisher")
+                .bookPostName("bookPostName")
+                .bookComment("bookComment")
+                .bookPrice(28000)
+                .isbn("isbn")
+                .build();
+    }
+
+    private Book createBook() {
+        return Book.builder()
+                .email("email")
+                .bookName("bookName")
+                .bookRealPrice(30000)
+                .author("author")
+                .publisher("publisher")
+                .bookPostName("bookPostName")
+                .bookComment("bookComment")
+                .bookPrice(28000)
+                .isbn("isbn")
+                .build();
+    }
+
+    private Image createImage() {
+        MockMultipartFile imageFile
+                = new MockMultipartFile("image", "image.jpg", "image/jpeg", new byte[10]);
+        return Image.builder()
+                .storeFilename("storeFilename")
+                .originalFilename("originalFilename")
+                .gcsUrl("gcsUrl")
+                .image(imageFile)
+                .build();
+    }
+
+    private BookUpdateCommend createBookUpdateCommend(Long bookId, String email) {
+        return BookUpdateCommend.builder()
+                .bookId(bookId)
                 .email(email)
-                .bookName(bookName)
-                .bookRealPrice(bookRealPrice)
-                .author(author)
-                .publisher(publisher)
-                .bookPostName(bookPostName)
-                .bookComment(bookComment)
-                .bookPrice(bookPrice)
-                .isbn(isbn)
+                .bookPostName("updateBookPostName")
+                .bookComment("updateBookCommend")
+                .bookPrice(20000)
+                .build();
+    }
+
+    private BookDeleteCommend createBookDeleteCommend(Long bookId, String email) {
+        return BookDeleteCommend.builder()
+                .bookId(bookId)
+                .email(email)
                 .build();
     }
 }

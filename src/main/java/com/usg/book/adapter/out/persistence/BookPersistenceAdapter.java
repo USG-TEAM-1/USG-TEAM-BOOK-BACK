@@ -18,7 +18,41 @@ public class BookPersistenceAdapter implements BookPersistencePort {
 
     @Override
     public Long registerBook(Book book) {
-        BookEntity bookEntity = BookEntity
+        BookEntity bookEntity = bookToBookIdNotContainEntity(book);
+
+        BookEntity savedBookEntity = bookRepository.save(bookEntity);
+
+        return savedBookEntity.getId();
+    }
+
+    @Override
+    public Book findBookById(Long bookId) {
+
+        BookEntity findBookEntity = bookRepository.findById(bookId).orElseThrow(
+                () -> new IllegalArgumentException("Book Not Exist")
+        );
+
+        return bookEntityToBook(findBookEntity);
+    }
+
+    @Override
+    public void deleteById(Long bookId){
+        bookRepository.deleteById(bookId);
+    }
+
+    @Override
+    public Page<BookEntity> findAll(Pageable pageable){
+        return bookRepository.findAll(pageable);
+    }
+
+    @Override
+    public void updateBook(Long bookId, String bookPostName, String bookComment, Integer bookPrice) {
+
+        bookRepository.updateBookByBookId(bookId, bookPostName, bookComment, bookPrice);
+    }
+
+    private BookEntity bookToBookIdNotContainEntity(Book book) {
+        return BookEntity
                 .builder()
                 .email(book.getEmail())
                 .bookName(book.getBookName())
@@ -30,31 +64,20 @@ public class BookPersistenceAdapter implements BookPersistencePort {
                 .bookPrice(book.getBookPrice())
                 .isbn(book.getIsbn())
                 .build();
-
-        BookEntity savedBookEntity = bookRepository.save(bookEntity);
-
-        return savedBookEntity.getId();
     }
 
-    @Override
-    public BookEntity findById(Long bookId) {
-        return bookRepository.findById(bookId).orElseThrow(
-                () -> new IllegalArgumentException("Book Not Exist")
-        );
-    }
-
-    @Override
-    public void deleteById(Long bookId){
-        bookRepository.deleteById(bookId);
-    }
-
-    @Override
-    public BookEntity save(BookEntity bookEntity){
-        return bookRepository.save(bookEntity);
-    }
-
-    @Override
-    public Page<BookEntity> findAll(Pageable pageable){
-        return bookRepository.findAll(pageable);
+    private Book bookEntityToBook(BookEntity bookEntity) {
+        return Book.builder()
+                .bookId(bookEntity.getId())
+                .email(bookEntity.getEmail())
+                .bookName(bookEntity.getBookName())
+                .bookRealPrice(bookEntity.getBookRealPrice())
+                .author(bookEntity.getAuthor())
+                .publisher(bookEntity.getPublisher())
+                .bookPostName(bookEntity.getBookPostName())
+                .bookComment(bookEntity.getBookComment())
+                .bookPrice(bookEntity.getBookPrice())
+                .isbn(bookEntity.getIsbn())
+                .build();
     }
 }

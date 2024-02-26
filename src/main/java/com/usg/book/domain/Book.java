@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Book {
 
+    private Long bookId; // 책 엔티티 PK
     private String email; // 어떤 사용자가 책을 등록했는지 알기 위함
     private String bookName; // 책 이름
     private Integer bookRealPrice; // 책 원가
@@ -20,7 +21,8 @@ public class Book {
     private String isbn; // ISBN
 
     @Builder
-    public Book(String email, String bookName, Integer bookRealPrice, String author, String publisher, String bookPostName, String bookComment, Integer bookPrice, String isbn) {
+    public Book(Long bookId, String email, String bookName, Integer bookRealPrice, String author, String publisher, String bookPostName, String bookComment, Integer bookPrice, String isbn) {
+        this.bookId = bookId;
         this.email = email;
         this.bookName = bookName;
         this.bookRealPrice = bookRealPrice;
@@ -30,5 +32,11 @@ public class Book {
         this.bookComment = bookComment;
         this.bookPrice = bookPrice;
         this.isbn = isbn;
+    }
+
+    public void checkSelfEmail(String email) {
+        if (!this.email.equals(email)) {
+            throw new IllegalArgumentException("You are not authorized to update this book.");
+        }
     }
 }

@@ -1,7 +1,6 @@
 package com.usg.book.adapter.out.persistence.entity;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -14,8 +13,8 @@ public interface ImageRepository extends JpaRepository<ImageEntity, Long> {
             " where i.bookEntity.id = :bookId")
             List<ImageEntity> findByBookId(@Param("bookId") Long bookId);
 
-    @Query("SELECT i FROM ImageEntity i WHERE i.bookEntity.id = :bookId")
-    List<ImageEntity> findImagesByBookId(@Param("bookId") Long bookId);
+    @Query("SELECT i FROM ImageEntity i join fetch i.bookEntity ib WHERE i.bookEntity.id = :bookId")
+    List<ImageEntity> findImagesByBookIdJoinFetch(@Param("bookId") Long bookId);
 
 }
 

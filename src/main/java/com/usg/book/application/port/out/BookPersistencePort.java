@@ -9,8 +9,8 @@ import com.usg.book.domain.Book;
 public interface BookPersistencePort {
 
     Long registerBook(Book book);
-    BookEntity findById(Long bookId);
+    Book findBookById(Long bookId);
     void deleteById(Long bookId);
-    BookEntity save(BookEntity bookEntity);
     Page<BookEntity> findAll(Pageable pageable);
+    void updateBook(Long bookId, String bookPostName, String bookComment, Integer bookPrice);
 }

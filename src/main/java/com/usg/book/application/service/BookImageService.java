@@ -1,13 +1,10 @@
 package com.usg.book.application.service;
 
-import com.usg.book.adapter.out.persistence.entity.BookEntity;
-import com.usg.book.adapter.out.persistence.entity.ImageEntity;
 import com.usg.book.application.port.in.BookImageDeleteUseCase;
 import com.usg.book.application.port.in.BookImageUpdateUseCase;
 import com.usg.book.application.port.in.BookImageUploadUseCase;
 import com.usg.book.application.port.out.BookImageGcsPort;
 import com.usg.book.application.port.out.BookImagePersistencePort;
-import com.usg.book.application.port.out.BookPersistencePort;
 import com.usg.book.domain.Image;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +23,6 @@ public class BookImageService implements BookImageUploadUseCase, BookImageDelete
 
     private final BookImagePersistencePort bookImagePersistencePort;
     private final BookImageGcsPort bookImageGcsPort;
-    private final BookPersistencePort bookPersistencePort;
 
     @Override
     @Transactional
@@ -36,9 +32,6 @@ public class BookImageService implements BookImageUploadUseCase, BookImageDelete
             throw new IllegalArgumentException("Image Capacity Exceeded");
         }
 
-        BookEntity findBookEntity = bookPersistencePort.findById(bookId);
-        Long findBookEntityId = findBookEntity.getId();
-
         for (MultipartFile imageFile : images) {
             if (!imageFile.isEmpty()) {
 
@@ -47,15 +40,16 @@ public class BookImageService implements BookImageUploadUseCase, BookImageDelete
 
                 Image image = Image.builder()
                         .image(imageFile)
-                        .bookId(findBookEntityId)
+                        .bookId(bookId)
                         .storeFilename(storeFilename)
+                        .originalFilename(originalFilename)
                         .build();
 
                 String gcsUrl = bookImageGcsPort.uploadImage(image);
 
                 image.setGcsUrl(gcsUrl);
 
-                bookImagePersistencePort.saveImage(image, findBookEntity);
+                bookImagePersistencePort.saveImage(image, bookId);
             }
         }
     }
@@ -72,23 +66,20 @@ public class BookImageService implements BookImageUploadUseCase, BookImageDelete
         return originalFilename.substring(pos + 1); // 확장자 .png가져오기
     }
 
-    
+
     @Override
     @Transactional
     public void deleteImages(Long bookId) {
-        List<ImageEntity> imageEntities = bookImagePersistencePort.getImagesByBookId(bookId);
+        List<Image> findImages = bookImagePersistencePort.getImagesByBookId(bookId);
 
-        for (ImageEntity imageEntity : imageEntities) {
-            if (imageEntity != null) {
+        for (Image images : findImages) {
 
-                String gcsImageUrl = imageEntity.getGcsUrl();
-                if (gcsImageUrl != null) {
-                    bookImageGcsPort.deleteImage(gcsImageUrl);
-                }
-
-                bookImagePersistencePort.deleteImage(imageEntity.getId());
-
+            String gcsImageUrl = images.getGcsUrl();
+            if (gcsImageUrl != null) {
+                bookImageGcsPort.deleteImage(gcsImageUrl);
             }
+
+            bookImagePersistencePort.deleteImage(images.getImageId());
         }
     }
 
@@ -99,43 +90,11 @@ public class BookImageService implements BookImageUploadUseCase, BookImageDelete
         if (images.size() > 10) {
             throw new IllegalArgumentException("Image Capacity Exceeded");
         }
-        
+
         //책과 연관된 이미지를 삭제
         deleteImages(bookId);
-        List<ImageEntity> imageEntities = bookImagePersistencePort.getImagesByBookId(bookId);
-
-        for (ImageEntity imageEntity : imageEntities) {
-            if (imageEntity != null) {
-
-                String gcsImageUrl = imageEntity.getGcsUrl();
-                if (gcsImageUrl != null) {
-                    bookImageGcsPort.deleteImage(gcsImageUrl);
-                }
-
-                bookImagePersistencePort.deleteImage(imageEntity.getId());
-
-            }
-        }
-
-        BookEntity findBookEntity = bookPersistencePort.findById(bookId);
 
         // 새로운 이미지를 업로드하고 저장
-        for (MultipartFile imageFile : images) {
-            if (!imageFile.isEmpty()) {
-                String originalFilename = imageFile.getOriginalFilename();
-                String storeFilename = createStoreFilename(originalFilename);
-
-                Image image = Image.builder()
-                        .image(imageFile)
-                        .bookId(bookId)
-                        .storeFilename(storeFilename)
-                        .build();
-
-                String gcsUrl = bookImageGcsPort.uploadImage(image);
-                image.setGcsUrl(gcsUrl);
-
-                bookImagePersistencePort.saveImage(image, findBookEntity);
-            }
-        }
+        saveImages(images, bookId);
     }
 }

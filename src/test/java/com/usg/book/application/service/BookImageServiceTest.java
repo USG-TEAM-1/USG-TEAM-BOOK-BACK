@@ -1,85 +1,147 @@
 package com.usg.book.application.service;
 
-import com.usg.book.adapter.out.persistence.entity.BookEntity;
-import com.usg.book.application.port.out.BookImageGcsPort;
+import com.usg.book.IntegrationExternalApiMockingTestSupporter;
 import com.usg.book.application.port.out.BookImagePersistencePort;
 import com.usg.book.application.port.out.BookPersistencePort;
+import com.usg.book.domain.Book;
 import com.usg.book.domain.Image;
-import org.assertj.core.api.AbstractThrowableAssert;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 
-@ExtendWith(MockitoExtension.class)
-public class BookImageServiceTest {
+public class BookImageServiceTest extends IntegrationExternalApiMockingTestSupporter {
 
-    @InjectMocks
+    @Autowired
     private BookImageService bookImageService;
-    @Mock
-    private BookImagePersistencePort bookImagePersistencePort;
-    @Mock
-    private BookImageGcsPort bookImageGcsPort;
-    @Mock
+    @Autowired
     private BookPersistencePort bookPersistencePort;
+    @Autowired
+    private BookImagePersistencePort bookImagePersistencePort;
 
     @Test
-    @DisplayName("이미지 저장 서비스 테스트")
+    @DisplayName("이미지 파일들과 책 PK 로 이미지들을 저장한다.")
     void saveImagesTest() {
         // given
-        Long bookId = 1L;
-        List<MultipartFile> images = new ArrayList<>();
-        MockMultipartFile image = new MockMultipartFile("images", "image1.jpg", "image/jpeg", new byte[10]);
-        images.add(image);
+        Book book = createBook();
+        Long savedBookId = bookPersistencePort.registerBook(book);
+        List<MultipartFile> imageLists = createImageLists(10);
 
         // stub
-        when(bookPersistencePort.findById(bookId)).thenAnswer(invocation -> {
-            BookEntity bookEntity = BookEntity.builder().build();
-            setPrivateField(bookEntity, "id", 1L);  // Reflection으로 ID 값을 설정
-            return bookEntity;
-        });
-        when(bookImageGcsPort.uploadImage(any(Image.class))).thenReturn("gcsUrl");
-        when(bookImagePersistencePort.saveImage(any(Image.class), any(BookEntity.class))).thenReturn(1L);
+        doReturn("gcsUrl").when(imageGcsAdapter).uploadImage(any(Image.class));
 
         // when
-        bookImageService.saveImages(images, bookId);
-    }
+        bookImageService.saveImages(imageLists, savedBookId);
 
-    private void setPrivateField(Object object, String fieldName, Object value) throws Exception {
-        Field field = object.getClass().getDeclaredField(fieldName);
-        field.setAccessible(true);
-        field.set(object, value);
+        // then
+        List<Image> findImages = bookImagePersistencePort.getImagesByBookId(savedBookId);
+        assertThat(findImages).hasSize(10)
+                .extracting("gcsUrl", "bookId")
+                .containsExactlyInAnyOrder(
+                        tuple("gcsUrl", savedBookId),
+                        tuple("gcsUrl", savedBookId),
+                        tuple("gcsUrl", savedBookId),
+                        tuple("gcsUrl", savedBookId),
+                        tuple("gcsUrl", savedBookId),
+                        tuple("gcsUrl", savedBookId),
+                        tuple("gcsUrl", savedBookId),
+                        tuple("gcsUrl", savedBookId),
+                        tuple("gcsUrl", savedBookId),
+                        tuple("gcsUrl", savedBookId)
+                );
     }
 
     @Test
-    @DisplayName("이미지 개수 초과로 인한 실패 테스트")
-    void saveImagesCapacityFailTest() {
+    @DisplayName("이미지 파일 개수가 10개 보다 많으면 예외가 발생한다.")
+    void saveImageFailTest() {
         // given
-        Long bookId = 1L;
-        List<MultipartFile> images = new ArrayList<>();
-        for (int i = 0; i < 11; i++) {
-            MockMultipartFile image = new MockMultipartFile("images", "image1.jpg", "image/jpeg", new byte[10]);
-            images.add(image);
-        }
+        Book book = createBook();
+        Long savedBookId = bookPersistencePort.registerBook(book);
+        List<MultipartFile> imageLists = createImageLists(11);
+
+        // stub
+        doReturn("gcsUrl").when(imageGcsAdapter).uploadImage(any(Image.class));
+
+        // when // then
+        assertThatThrownBy(() -> bookImageService.saveImages(imageLists, savedBookId))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Image Capacity Exceeded");
+    }
+
+    @Test
+    @DisplayName("책 PK 를 이용해 연관된 이미지들을 삭제한다.")
+    void deleteImagesTest() {
+        // given
+        Book book = createBook();
+        Long savedBookId = bookPersistencePort.registerBook(book);
+        List<MultipartFile> imageLists = createImageLists(1);
+
+        // stub
+        doNothing().when(imageGcsAdapter).deleteImage(anyString());
 
         // when
-        AbstractThrowableAssert<?, ? extends Throwable> abstractThrowableAssert
-                = assertThatThrownBy(() -> bookImageService.saveImages(images, bookId));
+        bookImageService.deleteImages(savedBookId);
 
         // then
-        abstractThrowableAssert
-                .isInstanceOf(IllegalArgumentException.class);
+        assertThat(bookImagePersistencePort.getImagesByBookId(savedBookId)).isEmpty();
+    }
+
+    @Test
+    @DisplayName("이미지 파일과 책 PK 를 이용해 이미지를 수정한다.")
+    void updateImagesTest() {
+        // given
+        Book book = createBook();
+        Long savedBookId = bookPersistencePort.registerBook(book);
+        List<MultipartFile> imageList = createImageLists(1);
+        bookImageService.saveImages(imageList, savedBookId);
+        List<MultipartFile> updateImageList = createImageLists(10);
+
+        // stub
+        doReturn("gcsUrl").when(imageGcsAdapter).uploadImage(any(Image.class));
+        doNothing().when(imageGcsAdapter).deleteImage(anyString());
+
+        // when
+        bookImageService.updateImages(updateImageList, savedBookId);
+
+        // then
+        List<Image> findImages = bookImagePersistencePort.getImagesByBookId(savedBookId);
+        assertThat(findImages).hasSize(10);
+    }
+
+    private Book createBook() {
+        return Book.builder()
+                .email("email")
+                .bookName("bookName")
+                .bookRealPrice(30000)
+                .author("author")
+                .publisher("publisher")
+                .bookPostName("bookPostName")
+                .bookComment("bookComment")
+                .bookPrice(28000)
+                .isbn("isbn")
+                .build();
+    }
+
+    private List<MultipartFile> createImageLists(int loop) {
+        List<MultipartFile> imageFiles = new ArrayList<>();
+
+        for (int i = 0; i < loop; i++) {
+            MockMultipartFile imageFile
+                    = new MockMultipartFile("image", "image.jpg", "image/jpeg", new byte[10]);
+
+            imageFiles.add(imageFile);
+        }
+
+        return imageFiles;
     }
 }
