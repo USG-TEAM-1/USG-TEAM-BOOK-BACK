@@ -1,7 +1,5 @@
 package com.usg.book.adapter.out.persistence.entity;
 
-import org.hibernate.annotations.DynamicUpdate;
-
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -39,13 +37,5 @@ public class BookEntity extends BaseTime{
         this.bookPrice = bookPrice;
         this.isbn = isbn;
     }
-
-    public void updateBook(String bookPostName, String bookComment, Integer bookPrice) {
-        
-        this.bookPostName = bookPostName;
-        this.bookComment = bookComment;
-        this.bookPrice = bookPrice;
-    }
-    
 }
 
