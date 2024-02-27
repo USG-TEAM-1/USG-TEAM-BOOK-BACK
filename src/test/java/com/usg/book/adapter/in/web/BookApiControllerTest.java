@@ -99,4 +99,30 @@ public class BookApiControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("책 삭제가 완료되었습니다."));
     }
+
+    @Test
+    @DisplayName("책 수정 API 의 입력값을 확인한다.")
+    void updateBookTest() throws Exception {
+        // given
+        Long bookId = 1L;
+        String jwt = "Bearer " + MockJWTGenerator.generateToken("email");
+
+        // stub
+        doNothing().when(bookImageService).updateImages(anyList(), anyLong());
+        doReturn(bookId).when(bookService).updateBook(any(BookUpdateCommend.class));
+
+        // when
+        ResultActions perform = mockMvc.perform(multipart(HttpMethod.PUT, "/api/book/" + bookId)
+                .file("images[0]", new byte[10])
+                .param("bookPostName", "updateBookPostName")
+                .param("bookComment", "updateBookComment")
+                .param("bookPrice", "25000")
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                .header("Authorization", jwt));
+
+        // then
+        perform
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("책 수정이 완료되었습니다."));
+    }
 }
