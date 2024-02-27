@@ -62,6 +62,9 @@ dependencies {
 
 	// embedded kafka
 	testImplementation group: 'org.testcontainers', name: 'kafka', version: '1.16.3'
+
+	// embedded redis
+	implementation("it.ozimov:embedded-redis:0.7.2")
 }
 
 tasks.named('test') {
