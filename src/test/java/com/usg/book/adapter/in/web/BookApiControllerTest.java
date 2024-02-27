@@ -1,6 +1,5 @@
 package com.usg.book.adapter.in.web;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.usg.book.adapter.in.web.token.JWTClaimDecoder;
 import com.usg.book.adapter.in.web.token.MemberEmailGetter;
 import com.usg.book.application.port.in.BookDeleteCommend;
@@ -38,7 +37,6 @@ public class BookApiControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-    private final ObjectMapper objectMapper = new ObjectMapper();
     @MockBean
     private BookService bookService;
     @MockBean
@@ -124,5 +122,46 @@ public class BookApiControllerTest {
         perform
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("책 수정이 완료되었습니다."));
+    }
+
+    @Test
+    @DisplayName("책 상세조회 API 입력값을 확인한다.")
+    void getBookTest() throws Exception {
+        // given
+        Long bookId = 1L;
+        String jwt = "Bearer " + MockJWTGenerator.generateToken("email");
+
+        // stub
+        GetBookServiceResponse getBookServiceResponse = createGetBookResponse();
+        doReturn(getBookServiceResponse).when(bookService).getBook(bookId);
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/api/book/" + bookId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", jwt));
+
+        // then
+        perform
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("책 조회가 완료되었습니다."))
+                .andExpect(jsonPath("$.data.imageUrls").isArray());
+    }
+
+    private GetBookServiceResponse createGetBookResponse() {
+        List<String> imageUrls = new ArrayList<>();
+        imageUrls.add("gcsUrl1");
+        imageUrls.add("gcsUrl2");
+        return GetBookServiceResponse
+                .builder()
+                .bookName("bookName")
+                .bookComment("bookComment")
+                .bookPostName("bookPostName")
+                .bookPrice(28000)
+                .bookRealPrice(30000)
+                .nickname("nickname")
+                .imageUrls(imageUrls)
+                .author("author")
+                .publisher("publisher")
+                .build();
     }
 }
