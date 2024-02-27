@@ -20,7 +20,6 @@ public class MockJWTGenerator {
         return Jwts.builder()
                 .setSubject("user")
                 .claim("email", email)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(Date.from(Instant.now().plus(jwtExpiration, ChronoUnit.MILLIS)))
                 .signWith(SignatureAlgorithm.HS256, secretKey).compact();
     }
