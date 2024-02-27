@@ -85,7 +85,11 @@ jacocoTestReport {
 			fileTree(dir: it, exclude: [
 					"**/Q*.class",
 					"**/*Dto.*",
-					"**/*dto*"
+					"**/*dto*",
+					"**/*Commend.*",
+					"**/*Commend*",
+					"**/*Response*",
+					"**/*Response.*"
 			])
 		}))
 	}
