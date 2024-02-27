@@ -1,4 +1,4 @@
-package com.usg.book.adapter.in.kafka.config;
+package com.usg.book.config;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
