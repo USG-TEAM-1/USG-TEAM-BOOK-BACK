@@ -61,7 +61,7 @@ dependencies {
 	testImplementation "org.testcontainers:junit-jupiter:1.19.1"
 
 	// embedded kafka
-	testImplementation group: 'org.testcontainers', name: 'kafka', version: '1.16.3'
+	implementation("org.springframework.kafka:spring-kafka-test")
 
 	// embedded redis
 	implementation("it.ozimov:embedded-redis:0.7.2")
