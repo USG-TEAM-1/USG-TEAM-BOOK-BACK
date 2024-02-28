@@ -1,25 +1,24 @@
-package com.usg.book.adapter.in.kafka.config;
+package com.usg.book.config;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-public class KafkaConsumerConfig {
+@ActiveProfiles("test")
+public class MockKafkaConsumerConfig {
 
-    @Value("${spring.kafka.consumer.bootstrap-servers}")
-    private String host;
-    @Value("${spring.kafka.consumer.group-id}")
-    private String group;
-
+    private String host = "localhost:9092";
+    private String group = "book";
 
     public ConsumerFactory<String, String> factory() {
 
@@ -34,7 +33,8 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, String> stockChangeListener() {
+    @Primary
+    public ConcurrentKafkaListenerContainerFactory<String, String> mockStockChangeListener() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(factory());
         return factory;
