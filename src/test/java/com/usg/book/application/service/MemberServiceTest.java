@@ -9,10 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Assertions.*;
 
-public class CqrsServiceTest extends IntegrationExternalApiMockingTestSupporter {
+public class MemberServiceTest extends IntegrationExternalApiMockingTestSupporter {
 
     @Autowired
-    private CqrsService cqrsService;
+    private MemberService memberService;
     @Autowired
     private MemberPersistencePort memberPersistencePort;
 
@@ -24,7 +24,7 @@ public class CqrsServiceTest extends IntegrationExternalApiMockingTestSupporter 
                 .email("email").nickname("nickname").build();
 
         // when
-        cqrsService.memberWrite(memberWriteCommend);
+        memberService.memberWrite(memberWriteCommend);
 
         // then
         String nickname = memberPersistencePort.getNicknameByEmail(memberWriteCommend.getEmail());

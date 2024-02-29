@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CqrsService implements MemberWriteUseCase {
+public class MemberService implements MemberWriteUseCase {
 
     private final MemberPersistencePort memberPersistencePort;
 
