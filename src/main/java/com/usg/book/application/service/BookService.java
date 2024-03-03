@@ -1,7 +1,9 @@
 package com.usg.book.application.service;
 
+import com.usg.book.adapter.out.api.dto.BookAllResponse;
 import com.usg.book.adapter.out.persistence.entity.BookEntity;
 import com.usg.book.adapter.out.persistence.entity.BookRepository;
+import com.usg.book.adapter.out.persistence.entity.ImageEntity;
 import com.usg.book.adapter.out.persistence.entity.ImageRepository;
 import com.usg.book.application.port.in.BookDeleteCommend;
 import com.usg.book.application.port.in.BookDeleteUseCase;
@@ -95,36 +97,55 @@ public class BookService implements BookRegisterUseCase, GetBookUseCase, BookUpd
 
     }
 
-    @Override
-    public Page<BookAllServiceResponse> findAll(Pageable pageable) {
+    public Page<BookAllResponse> findAll(Pageable pageable) {
         int page = pageable.getPageNumber() - 1;
         int pageLimit = 20;
 
-        Page<BookEntity> bookPages= bookPersistencePort.findAll(PageRequest.of(page,pageLimit, Sort.by(Sort.Direction.DESC,"id")));
+        Page<BookEntity> bookPages= bookRepository.findAll(PageRequest.of(page,pageLimit, Sort.by(Sort.Direction.DESC,"id")));
         List<BookEntity> books=bookPages.stream().toList();
 
-        List<BookAllServiceResponse> bookAllResponseList = new ArrayList<>();
-
+        List<BookAllResponse> bookAllResponseList = new ArrayList<>();
         for (BookEntity book:books) {
-            //List<ImageEntity> image = bookImagePersistencePort.findByBookEntity(book);
-            // BookAllResponse bookAllResponse = BookAllResponse.toDto(book, image);
-            // bookAllResponseList.add(bookAllResponse);
-
-            List<String> imageUrls = bookImagePersistencePort.getImageUrls(book.getId());
-            BookAllServiceResponse bookAllServiceResponse = BookAllServiceResponse.builder()
-                .bookName(book.getBookName())
-                .bookPostName(book.getBookPostName())
-                .bookPrice(book.getBookPrice())
-                .bookRealPrice(book.getBookRealPrice())
-                .imageUrls(imageUrls)
-                .author(book.getAuthor())
-                .publisher(book.getPublisher())
-                .build();
-
-            bookAllResponseList.add(bookAllServiceResponse);
+            List<ImageEntity> image=imageRepository.findByBookEntity(book);
+            BookAllResponse bookAllResponse = BookAllResponse.toDto(book, image);
+            bookAllResponseList.add(bookAllResponse);
         }
+
+
         return new PageImpl<>(bookAllResponseList, pageable, bookPages.getTotalElements());
+
     }
+
+//    @Override
+//    public Page<BookAllServiceResponse> findAll(Pageable pageable) {
+//        int page = pageable.getPageNumber() - 1;
+//        int pageLimit = 20;
+//
+//        Page<BookEntity> bookPages= bookPersistencePort.findAll(PageRequest.of(page,pageLimit, Sort.by(Sort.Direction.DESC,"id")));
+//        List<BookEntity> books=bookPages.stream().toList();
+//
+//        List<BookAllServiceResponse> bookAllResponseList = new ArrayList<>();
+//
+//        for (BookEntity book:books) {
+//            //List<ImageEntity> image = bookImagePersistencePort.findByBookEntity(book);
+//            // BookAllResponse bookAllResponse = BookAllResponse.toDto(book, image);
+//            // bookAllResponseList.add(bookAllResponse);
+//
+//            List<String> imageUrls = bookImagePersistencePort.getImageUrls(book.getId());
+//            BookAllServiceResponse bookAllServiceResponse = BookAllServiceResponse.builder()
+//                .bookName(book.getBookName())
+//                .bookPostName(book.getBookPostName())
+//                .bookPrice(book.getBookPrice())
+//                .bookRealPrice(book.getBookRealPrice())
+//                .imageUrls(imageUrls)
+//                .author(book.getAuthor())
+//                .publisher(book.getPublisher())
+//                .build();
+//
+//            bookAllResponseList.add(bookAllServiceResponse);
+//        }
+//        return new PageImpl<>(bookAllResponseList, pageable, bookPages.getTotalElements());
+//    }
     
     @Override
     @Transactional
