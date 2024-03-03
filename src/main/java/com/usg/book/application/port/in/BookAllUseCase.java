@@ -6,5 +6,5 @@ import org.springframework.data.domain.Pageable;
 import com.usg.book.adapter.in.web.dto.BookAllResponse;
 
 public interface BookAllUseCase {
-    Page<BookAllServiceResponse> findAll(Pageable pageable);
+//    Page<BookAllServiceResponse> findAll(Pageable pageable);
 }
