@@ -1,6 +1,6 @@
 package com.usg.book.adapter.in.web;
 
-import com.usg.book.adapter.in.web.dto.BookAllResponse;
+
 import com.usg.book.adapter.in.web.dto.BookRegisterRequest;
 import com.usg.book.adapter.in.web.dto.BookRegisterResponse;
 import com.usg.book.adapter.in.web.dto.GetBookResponse;
@@ -61,24 +61,31 @@ public class BookApiController {
                 "책 등록이 완료되었습니다."));
     }
 
+//    @Operation(summary = "메인페이지 *")
+//    @GetMapping(value="/api/book")
+//    public ResponseEntity<Result> findAll(@PageableDefault(page=1) Pageable pageable, HttpServletRequest servletRequest){
+//        Page<BookAllServiceResponse> books = bookAllUseCase.findAll(pageable);
+//
+//        List<BookAllResponse> bookResponses = books.stream()
+//            .map(book -> BookAllResponse.builder()
+//                    .bookName(book.getBookName())
+//                    .bookPostName(book.getBookPostName())
+//                    .bookPrice(book.getBookPrice())
+//                    .bookRealPrice(book.getBookRealPrice())
+//                    .imageUrls(book.getImageUrls())
+//                    .author(book.getAuthor())
+//                    .publisher(book.getPublisher())
+//                    .build())
+//            .collect(Collectors.toList());
+//
+//        return ResponseEntity.ok(new Result<>(bookResponses, "조회 완료"));
+//    }
+
     @Operation(summary = "메인페이지 *")
     @GetMapping(value="/api/book")
-    public ResponseEntity<Result> findAll(@PageableDefault(page=1) Pageable pageable, HttpServletRequest servletRequest){
-        Page<BookAllServiceResponse> books = bookAllUseCase.findAll(pageable);
-
-        List<BookAllResponse> bookResponses = books.stream()
-            .map(book -> BookAllResponse.builder()
-                    .bookName(book.getBookName())
-                    .bookPostName(book.getBookPostName())
-                    .bookPrice(book.getBookPrice())
-                    .bookRealPrice(book.getBookRealPrice())
-                    .imageUrls(book.getImageUrls())
-                    .author(book.getAuthor())
-                    .publisher(book.getPublisher())
-                    .build())
-            .collect(Collectors.toList());
-
-        return ResponseEntity.ok(new Result<>(bookResponses, "조회 완료"));
+    public ResponseEntity<Page<com.usg.book.adapter.out.api.dto.BookAllResponse>> findAll(@PageableDefault(page=1) Pageable pageable, HttpServletRequest servletRequest){
+        Page<com.usg.book.adapter.out.api.dto.BookAllResponse> books=bookService.findAll(pageable);
+        return ResponseEntity.ok(books);
     }
 
     @Operation(summary = "책 삭제 *")
